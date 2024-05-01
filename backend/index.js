@@ -7,10 +7,10 @@ const history = require('connect-history-api-fallback');
 const authRoute = require('./router/auth');
 
 const app = express();
-const portt = process.env.PORT || 3015;
+const portt = process.env.PORT || 3018;
 
 // Serve static files from the 'public' folder
-// app.use(express.static(path.resolve(__dirname, './dist'), { maxAge : '1y', etag: false}));
+app.use(express.static(path.resolve(__dirname, './dist'), { maxAge : '1y', etag: false}));
 app.use(history());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -20,7 +20,7 @@ app.use('/api/v1/auth', authRoute);
 
 // Handle requests that don't match any routes by serving the frontend index.html
 app.get('*', (req, res) => {
-  // res.sendFile(path.join(__dirname, './dist/index.html'));
+  res.sendFile(path.join(__dirname, './dist/index.html'));
 });
 
 app.listen( portt, () => {
@@ -28,7 +28,7 @@ app.listen( portt, () => {
 });
 
 
-fetch('http://localhost:3015/api/v1/auth/insertUserData/', {
+fetch('http://localhost:'+portt+'/api/v1/auth/getUserData/tester@gmai.com', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'
