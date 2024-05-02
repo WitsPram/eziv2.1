@@ -4,11 +4,11 @@
   <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
   <router-link to="./" class="flex items-center space-x-3 rtl:space-x-reverse">
       <img src="../assets/logo.png"  height="70" width="70" alt="Logo" />
-      <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Ezezimali</span>
+      <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Ezezimalis</span>
   </router-link>
   <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
       <button type="button" class="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
-        <img height="50" width="50" class="rounded-full h-0" src="https://yt3.googleusercontent.com/-CFTJHU7fEWb7BYEb6Jh9gm1EpetvVGQqtof0Rbh-VQRIznYYKJxCaqv_9HeBcmJmIsp2vOO9JU=s900-c-k-c0x00ffffff-no-rj" alt="user photo">
+        <img height="50" width="50" class="rounded-full h-0" src="https://as1.ftcdn.net/v2/jpg/04/12/57/22/1000_F_412572270_OGw5hFLVwWoBCOdwWjLa1qGHsYU444PI.jpg" alt="user photo">
       </button>
       <!-- Dropdown menu -->
       <div class="z-50 p-4 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
@@ -24,7 +24,7 @@
             <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Settings</a>
           </li>
           <li>
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Earnings</a>
+            <a @click="moop" href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Earnings</a>
           </li>
           <li>
             <button v-if="userName=='User'" @click="handleLogin" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign in</button>
@@ -50,6 +50,27 @@ import { mapGetters } from 'vuex';
   
   export default {
     name: 'HeaderBar',
+    onMounted() {
+    },
+    methods: {
+      async getEmail(){
+      return await this.getUser.username;
+    },
+      moop(){
+        alert('moop')
+        fetch('https://dbquery.azurewebsites.net/'+'/api/v1/auth/getUserData/jddsfbsdddf', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({"email" : "jddsfbsdddf" , "profile_pic_url": "joo"}) 
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+      }
+    },
+
     computed: {
     ...mapGetters([
       'getUser', 'isAuthenticated'
@@ -65,7 +86,8 @@ import { mapGetters } from 'vuex';
     setup() {
       const { login, logout, handleRedirect } = useAuth();
 
-  
+      console.log('mounted');
+
       const handleLogin = async () => {
           await login();
 

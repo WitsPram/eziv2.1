@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/656c9518-399d-4e1d-8003-2bc5eb831473/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/dbQuery",
+    "appService.deploySubpath": "backend"
+}
