@@ -1,6 +1,8 @@
 
 <template>
     <div>jds</div>
+    <button><a src="/apply-funding-manager">Fund Manager</a></button>
+    <button><a src="/submit-funding-oppurtunity">Funding Opportunity</a></button>
 </template>
 
 <style></style>
