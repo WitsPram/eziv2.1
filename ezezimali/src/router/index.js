@@ -33,7 +33,8 @@ const router = createRouter({
     {
       path: '/admin',
       name: 'admin',
-      component: Admin
+      component: Admin}
+      ,{
       path: '/funding-applications',
       name: 'FA',
       component: FM

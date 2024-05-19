@@ -28,27 +28,65 @@
 
 <script>
 export default {
+  mounted() {
+    this.fetchData();
+  },
   data() {
     return {
-      fundsUsedData: {
-        'Fund A': 5000,
-        'Fund B': 3000,
-        'Fund C': 7000,
-      },
-      acceptedCounts: {
-        'Fund A': 50,
-        'Fund B': 30,
-        'Fund C': 70,
-      },
-      awaitingApproval: {
-        'Fund A': 50,
-        'Fund B': 30,
-        'Fund C': 70,
-      }
+      inputText: '',
+      id: -1,
+      data: null,
+      fundsUsedData: {}, // Initialize fundsUsedData object
+      acceptedCounts: {}, // Add this if you want to process acceptedCounts as well
+      awaitingApproval: {} // Add this if you want to process awaitingApproval as well
     };
   },
+  methods: {
+    async fetchData() {
+      try {
+        const baseurl = 'http://localhost:5173';
+        const response = await fetch(baseurl + '/api/v1/auth/readFundOpps/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        this.data = data;
+        console.log(data);
+        
+        this.processData(data); // Process the fetched data
+        
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    },
+    processData(data) {
+      // Initialize an empty object to hold the amounts
+      const fundsUsed = {};
+
+      // Loop through the data and aggregate the amounts
+      data.forEach(item => {
+        if (item.amount && item.fundName) {
+          if (!fundsUsed[item.fundName]) {
+            fundsUsed[item.fundName] = 0;
+          }
+          fundsUsed[item.fundName] += item.amount;
+        }
+      });
+
+      // Update the fundsUsedData with the processed amounts
+      this.fundsUsedData = fundsUsed;
+    }
+  }
 };
 </script>
+
 
 <style scoped>
 /* Updated styling for Total Funds Used */
@@ -156,4 +194,3 @@ li {
   }
 }
 </style>
-
