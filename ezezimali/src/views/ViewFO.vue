@@ -51,8 +51,8 @@ import oppCardEdit from '../components/opp-card-edit.vue';
             
             // alert(email);
             const baseurl = 
-            "http://localhost:"+3019;
-            // // "https://ezezimalii.azurewebsites.net/" 
+            // "http://localhost:"+3019;
+            "https://ezezimalii.azurewebsites.net/" 
             const url = baseurl+'/api/v1/auth/readFundOppsForFM/'+email;
             let response = await fetch(url, {  method: 'POST',
             headers: {

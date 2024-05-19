@@ -61,8 +61,8 @@
       async readFundOpps() {
         const email = await this.getEmail();
         const baseurl = 
-        'http://localhost:'+3019;
-        // "https://ezezimalii.azurewebsites.net/";
+        // 'http://localhost:'+3019;
+        "https://ezezimalii.azurewebsites.net/";
         const response = await fetch(baseurl+'/api/v1/auth/readFundOpps/'+email, {
           method: 'POST',
           headers: {

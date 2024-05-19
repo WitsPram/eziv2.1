@@ -56,8 +56,8 @@ methods: {
       if (email){
             // alert('Posted successfully!');
               const baseurl = 
-              "http://localhost:"+3019;
-              // "https://ezezimalii.azurewebsites.net/" 
+              // "http://localhost:"+3019;
+              "https://ezezimalii.azurewebsites.net/" 
 
               // ${object.fundingOpp_ID}
               // '${object.applicant_email}', ${object.fundingOpp_ID}, '${object.applicant_motivation}', '${object.applicant_documents}'

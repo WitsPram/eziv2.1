@@ -5,6 +5,8 @@ import FM from '../views/FMView.vue'
 import ApplyFO from '../views/ApplyFO.vue'
 import ViewFO from '../views/ViewFO.vue'
 import Dashboard from '../views/Dashboard.vue'
+import FMReqs from '../views/FMReqs.vue'
+import block from '../views/Block.vue'  
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,6 +15,16 @@ const router = createRouter({
       path: '/apply-funding-manager',
       name: 'apply-funding-manager',
       component: Apply
+    },
+    {
+      path: '/blockUser',
+      name: 'block',
+      component: block
+    },
+    {
+      path: '/funding-manager-applications',
+      name: 'funding-manager-applications',
+      component: FMReqs
     },
     {
       path: '/view-funding-oppurtunities',

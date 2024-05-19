@@ -106,7 +106,11 @@ import { mapGetters } from 'vuex';
     userName() {
       if (this.getUser) {
         const fetchUserDetails = async (email, name) => {
-        const baseurl = "http://localhost:3019";
+        const baseurl = 
+        "https://ezezimalii.azurewebsites.net/"
+        // "http://localhost:3019"
+        ;
+
         fetch(baseurl+`/api/v1/auth/getUserData/${email}`, {
           method: 'POST',
           headers: {
@@ -121,6 +125,7 @@ import { mapGetters } from 'vuex';
              this.pfpUrl = data.profile_pic_url;
              this.userType = data.user_type;
             //  this.userType = "Admin"
+            //  this.userType = "Fund Manager"
             //  store.commit('SET_USER', state.user);
              store.commit('SET_USER_TYPE', this.userType);
             //  alert("hehehe"+this.getUserType)
