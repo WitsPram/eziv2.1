@@ -18,10 +18,10 @@
         </div>
         <ul class="py-2" aria-labelledby="user-menu-button">
           <li>
-            <router-link to="./" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</router-link>
+            <router-link to="/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</router-link>
           </li>
           <li v-if="userType === 'Fund Manager'">
-            <router-link to="./earnings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">View opportunities</router-link>
+            <router-link to="/view-funding-oppurtunities" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">View opportunities</router-link>
           </li>
           <li v-if="userType === 'Fund Manager'">
             <router-link to="/submit-funding-oppurtunity" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Create an Oppurtunity</router-link></li>
@@ -31,14 +31,14 @@
           <!-- allows for blocking users or opps with an email id -->
           <li v-if="userType === 'Admin'">
             <router-link to="/submit-funding-oppurtunity" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Administraion</router-link></li>
-            <li v-if="userType !== 'Applicant'">
+            <li v-if="userType === 'Applicant'">
               <router-link to="/apply-funding-manager" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Manager Application</router-link>
             </li>
           <li>
-            <router-link to="./earnings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Notifications</router-link>
+            <router-link to="/notifications" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Notifications</router-link>
           </li>
           <li v-if="userType === 'Fund Manager'">
-            <router-link to="./earnings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">View Earnings</router-link>
+            <router-link to="/earnings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">View Earnings</router-link>
           </li>
 
             
@@ -80,6 +80,9 @@ import { mapGetters } from 'vuex';
       async getEmail(){
       return await this.getUser.username;
     },
+    async getName(){
+      return await this.getUser.name;
+    },
       moop(){
         alert('moop')
         fetch('https://dbquery.azurewebsites.net/'+'/api/v1/auth/getUserData/jddsfbsdddf', {
@@ -101,13 +104,14 @@ import { mapGetters } from 'vuex';
     ]),
     userName() {
       if (this.getUser) {
-        const fetchUserDetails = async (email) => {
+        const fetchUserDetails = async (email, name) => {
         const baseurl = "http://localhost:3019";
         fetch(baseurl+`/api/v1/auth/getUserData/${email}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
+          body: JSON.stringify({'name' : name})
         })
         .then(response => response.json())
         .then(data => {
@@ -115,6 +119,7 @@ import { mapGetters } from 'vuex';
             console.log('User datasss:', data);
              this.pfpUrl = data.profile_pic_url;
              this.userType = data.user_type;
+             this.userType = "Fund Manager"
             // userDetails.value = data;
           } else {
             console.log('Failed to fetch user data');
@@ -122,7 +127,7 @@ import { mapGetters } from 'vuex';
         })
         .catch(error => console.error('Error:', error));
       };
-        fetchUserDetails(this.getUser.username);
+        fetchUserDetails(this.getUser.username, this.getUser.name);
         return this.getUser.name;
       } else {
         return 'User';

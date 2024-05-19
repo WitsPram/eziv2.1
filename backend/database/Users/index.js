@@ -13,7 +13,7 @@ async function readerUserData(userID) {
 
         // Perform a SELECT query to check if the user exists
 const resultSet = await pool.request().query(`
-SELECT profile_pic_url, user_type
+SELECT profile_pic_url, user_type, name
 FROM [User]
 WHERE email = '${userID}'
 `);

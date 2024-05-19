@@ -9,7 +9,7 @@
 
 
         <div class="opp-card" v-for="opp in fundingOpps" :key="opp.id">
-            <router-link :to="'/apply-funding-opportunity/' + opp.id" class=" opp-card block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+            <div class=" opp-card block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
 
 <img v-if="opp.type == 'Educational'" width="50" height="50" src="https://svgsilh.com/svg/2429310.svg" alt="education type">
 
@@ -21,7 +21,9 @@
 <h6>Awarded amount: {{ opp.amount }}</h6>
 <br>
 <p class="font-normal text-gray-700 dark:text-gray-400">{{ opp.summary }}</p>
+<router-link :to="'/apply-funding-opportunity/' + opp.id" class="download-button">Apply for Funding
             </router-link>
+        </div>
         </div>
 
       </div>
@@ -57,10 +59,11 @@
         // ... existing code ...
       },
       async readFundOpps() {
+        const email = await this.getEmail();
         const baseurl = 
         'http://localhost:'+3019;
         // "https://ezezimalii.azurewebsites.net/";
-        const response = await fetch(baseurl+'/api/v1/auth/readFundOpps/', {
+        const response = await fetch(baseurl+'/api/v1/auth/readFundOpps/'+email, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

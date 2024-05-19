@@ -33,24 +33,21 @@ const baseurl = process.env.PORT ? "https://ezezimalii.azurewebsites.net/" : 'ht
 const currentDate = new Date();
 
 
-fetch(baseurl+'/api/v1/auth/getApplicationsForFundingOpps/pookies', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    "title" : "title",
-    "summary" : "summary",
-    "description" : "description",
-    "fund_manager_email" : "pookies",
-    "end_date" : currentDate.toISOString(),
-    "type" : "Educational",
-    "amount" : "R1000"
-  }
-  ) 
-})
-.then(response => response.json())
-.then(data => console.log(data))
-.catch(error => console.error('Error:', error));
+// fetch(baseurl+'/api/v1/auth/updateFundingOpp/', {
+//   method: 'PUT',
+//   headers: {
+//     'Content-Type': 'application/json'
+//   },
+//   body: JSON.stringify({
+//     "title" : 'Community Development Grant',
+//     "summary":  'Empowering local communities through education and infrastructure development',
+//     'type': 'Business',
+//     'id' : 33
+//   }
+//   ) 
+// })
+// .then(response => response.json())
+// .then(data => console.log(data))
+// .catch(error => console.error('Error:', error));
 
 
