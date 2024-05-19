@@ -40,25 +40,30 @@
       }
     };
   },
+  computed: {
+    ...mapGetters([
+      'getUser', 'isAuthenticated'
+    ]),
+  },
   methods: {
     handleFileUpload(event) {
       this.formData.documents = event.target.files[0];
+    },
+    async getEmail(){
+      return await this.getUser.username;
     },
     submitForm() {
     if (this.formData.agree) {
         this.getEmail().then(email => {
             if (email){
+              console.log("email: ", email);
                 const baseurl = "https://ezezimalii.azurewebsites.net/" 
-
-                let formData = new FormData();
-                formData.append('applicant_motivation', this.formData.justification);
-                formData.append('applicant_email', email);
-                formData.append('applicant_documents', this.formData.documents);
-                formData.append('fundingOpp_ID', this.$route.params.id);
-
                 fetch(baseurl+'/insertApplicationsForFundingOpps/', {
-                    method: 'POST',
-                    body: formData
+                  method: 'POST',
+                  headers: {
+                'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({"applicant_motivation": this.formData.justification, "applicant_email": email, "applicant_documents": this.formData.documents, "fundingOpp_ID": this.$route.params.id}) 
                 })
                 .then(response => response.json())
                 .then(data => {
