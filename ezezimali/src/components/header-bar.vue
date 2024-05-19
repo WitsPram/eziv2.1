@@ -8,7 +8,7 @@
   </router-link>
   <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
       <button type="button" class="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
-        <img height="50" width="50" class="rounded-full h-0" src="https://as1.ftcdn.net/v2/jpg/04/12/57/22/1000_F_412572270_OGw5hFLVwWoBCOdwWjLa1qGHsYU444PI.jpg" alt="user photo">
+        <img id="pfp" height="50" width="50" class="rounded-full h-0 bg-white" :src="pfpUrl" alt="user photo">
       </button>
       <!-- Dropdown menu -->
       <div class="z-50 p-4 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
@@ -18,14 +18,32 @@
         </div>
         <ul class="py-2" aria-labelledby="user-menu-button">
           <li>
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</a>
+            <router-link to="./" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</router-link>
           </li>
+          <li v-if="userType === 'Fund Manager'">
+            <router-link to="./earnings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">View opportunities</router-link>
+          </li>
+          <li v-if="userType === 'Fund Manager'">
+            <router-link to="/submit-funding-oppurtunity" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Create an Oppurtunity</router-link></li>
+          <li v-if="userType === 'Fund Manager'">
+            <router-link to="/funding-applications" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">View Applications</router-link>
+          </li>
+          <!-- allows for blocking users or opps with an email id -->
+          <li v-if="userType === 'Admin'">
+            <router-link to="/submit-funding-oppurtunity" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Administraion</router-link></li>
+            <li v-if="userType !== 'Applicant'">
+              <router-link to="/apply-funding-manager" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Manager Application</router-link>
+            </li>
           <li>
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Settings</a>
+            <router-link to="./earnings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Notifications</router-link>
           </li>
-          <li>
-            <a @click="moop" href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Earnings</a>
+          <li v-if="userType === 'Fund Manager'">
+            <router-link to="./earnings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">View Earnings</router-link>
           </li>
+
+            
+
+
           <li>
             <button v-if="userName=='User'" @click="handleLogin" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign in</button>
             <button v-else @click="handleLogout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</button>
@@ -46,11 +64,17 @@
   import { useAuth } from '../useAuth';
   import { myMSALObj, state } from '../authService';
 
+  import { ref , watch} from 'vue';
+
 import { mapGetters } from 'vuex';
   
   export default {
     name: 'HeaderBar',
-    onMounted() {
+    data() {
+      return {
+        pfpUrl: "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg",
+        userType: ''
+      };
     },
     methods: {
       async getEmail(){
@@ -76,28 +100,88 @@ import { mapGetters } from 'vuex';
       'getUser', 'isAuthenticated'
     ]),
     userName() {
-      return this.getUser ? this.getUser.name : 'User';
+      if (this.getUser) {
+        const fetchUserDetails = async (email) => {
+        const baseurl = "http://localhost:3019";
+        fetch(baseurl+`/api/v1/auth/getUserData/${email}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message !== 'Failure') {
+            console.log('User datasss:', data);
+             this.pfpUrl = data.profile_pic_url;
+             this.userType = data.user_type;
+            // userDetails.value = data;
+          } else {
+            console.log('Failed to fetch user data');
+          }
+        })
+        .catch(error => console.error('Error:', error));
+      };
+        fetchUserDetails(this.getUser.username);
+        return this.getUser.name;
+      } else {
+        return 'User';
+      }
+      // return this.getUser ? this.getUser.name : 'User';
     },
+
     userEmail() {
-        
-        
-      return this.getUser ? this.getUser.username : 'example@gmail.com';},
+
+      return this.getUser ? this.getUser.username : 'example@gmail.com';
+
+    },
   },
+  mounted() {
+    console.log("jfnkjss");
+
+},
     setup() {
       const { login, logout, handleRedirect } = useAuth();
+      const userDetails = ref(null);
+
 
       console.log('mounted');
 
+    //   const baseurl = 
+    //   'http://localhost:3019'
+    //   ;
+    //   const fetchUserDetails = async (email) => {
+    //   fetch(`/api/v1/auth/getUserData/${email}`, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json'
+    //     },
+    //   })
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     if (data.message !== 'Failure') {
+    //       console.log('User data:', data);
+    //     } else {
+    //       console.log('Failed to fetch user data');
+    //     }
+    //   })
+    //   .catch(error => console.error('Error:', error));
+    // };
+
       const handleLogin = async () => {
-          await login();
-
-          
-
+          await login(); 
+          // await handleRedirect();
+          // console.log('logged in', u);
+          // alert(u)        
       };
   
       const handleLogout = async () => {
         await logout();
+
+        console.log('logged out');
       };
+
+
   
       const initialize = async () => {
         try {
@@ -106,14 +190,32 @@ import { mapGetters } from 'vuex';
           console.error("Initialization error:", error);
         }
       };
+
   
       onMounted(async () => {
         await initialize();
-        handleRedirect();
+        const u = await handleRedirect();
+
+        // console.log("fdwews",u.toString())
+        // console.log("moop")
+        
+        // fetchUserDetails(u.toString()); 
+
+
+
+        if (myMSALObj.getAllAccounts().length == 0) {
+          console.log('No accounts');
+          handleLogin();
+
+        } else {
+          console.log('Accounts 2:', myMSALObj.getAllAccounts());
+          // fetchUserDetails(myMSALObj.getAllAccounts()[0].username.toString());
+        }
       });
   
       return {
         handleLogin,
+        userDetails,
         handleLogout
       };
     }

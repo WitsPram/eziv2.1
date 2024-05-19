@@ -2,16 +2,38 @@
 <template>
     <div class="w-full flexCenter" id="form-container">
       <form @submit.prevent="submitForm">
-        <h2 id="heading">Application for funding opportunity</h2>
+        <h2  id="heading">Application for funding opportunity</h2>
   
         <label for="title" class="input-labels">Title</label>
         <input type="text" id="title" class="input" v-model="formData.title" placeholder="Students Employment Grant" required />
   
         <label for="summary" class="input-labels">Summary</label>
         <input type="text" id="summary" class="input" v-model="formData.summary" required placeholder="Build a foundation..." />
+
+        <label for="amount" class="input-labels">Amount</label>
+        <input type="number" id="amount" class="input" v-model="formData.amount" required placeholder="R1000" />
+
+        <label for="end_date" class="input-labels">End date</label>
+        <input type="date" id="end_date" class="input" v-model="formData.end_date" required placeholder="R1000" />
+
+
+        <label for="type" class="input-labels">Event type</label>
+        <div class="radio-group">
+
+
+          <label class="radio-label flexRow">
+            <input type="radio" name="type" value="Educational" checked v-model="formData.type"> Educational </label>
+
+            <label class="radio-label flexRow">
+            <input type="radio" name="type" value="Business" v-model="formData.type"> Business </label>
+
+            <label class="radio-label flexRow">
+            <input type="radio" name="type" value="Event" v-model="formData.type"> Event </label>
+
+</div>
   
         <label for="description" class="input-labels">Description</label>
-        <textarea id="description" rows="4" class="input textarea" v-model="formData.description" placeholder="This grant offers..."></textarea>
+        <textarea id="description" required rows="4" class="input textarea" v-model="formData.description" placeholder="This grant offers..."></textarea>
   
         <div class="flexRow">
           <div>
@@ -25,30 +47,52 @@
   </template>
   
   <script>
+  import { mapGetters } from 'vuex';
   export default {
     data() {
       return {
         formData: {
-          title: '',
-          summary: '',
-          description: '',
-          agree: false
-        }
+      title: '',
+      summary: '',
+      amount: '',
+      end_date: '',
+      type: 'Educational', 
+      description: '',
+      agree: false
+    }
       };
+    },  computed: {
+    ...mapGetters([
+      'getUser'
+    ]),
+  },
+    methods: {    async getEmail(){
+      return await this.getUser.username;
     },
-    methods: {
+
+
       submitForm() {
         // Output the form data
         // console.log('Form data:', this.formData.agree);
-        if (this.formData.agree) {
+
+        this.getEmail().then(email => {
+        if (email) {
             // alert('Posted successfully!');
 
-        
+            const dateObject = new Date(this.formData.end_date);
+            this.formData.end_date = dateObject.toISOString();
+
+            this.formData.fund_manager_email = email;
+
+
+            this.formData.amount = 'R'+this.formData.amount;
+
+        console.log(this.formData)
 
         const baseurl = 
-        // 'http://localhost:'+3019;
+        'http://localhost:'+3019;
         // process.env.PORT ?
-        "https://ezezimalii.azurewebsites.net/"  
+        // "https://ezezimalii.azurewebsites.net/"  
 
 fetch(baseurl+'/api/v1/auth/insertFundingOpp/', {
   method: 'POST',
@@ -60,15 +104,19 @@ fetch(baseurl+'/api/v1/auth/insertFundingOpp/', {
 .then(response => response.json())
 .then(data => {
     if (data.message !== 'Failure') {
-        alert('Posted successfully!');
+        alert(data.message);
     } else {
         alert('Failed to post');
     }
 })
 .catch(error => console.error('Error:', error));
-      }else {
-        alert('Please agree to the terms and conditions');
-    }
+      }
+    }).catch(error => {
+        console.error('Error fetching email:', error);
+        alert("Please Sign in");
+    });
+
+     
     
     }
     }
@@ -85,6 +133,20 @@ input{
     border: 1px solid #ccc;
     border-radius: 5px;
 }
+
+.radio-group {
+  display: flex; justify-content: space-evenly; flex-direction: row;
+}
+
+.radio-label {
+  margin-right: 20px; /* Adjust spacing between radio buttons */
+}
+
+.radio-label input[type="radio"] {
+  margin-right: 5px; 
+  width: 5px;
+}
+
 
 .flexRow{
     display: flex;
@@ -167,6 +229,7 @@ form{
 
 #form-container {
     width: 100%;
+    margin: 8rem 0;
     height: 80vh;
 }
 </style>

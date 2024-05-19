@@ -14,12 +14,8 @@ export function useAuth() {
                 throw new Error('MSAL instance not initialized');
             }
 
-            const sss = await myMSALObj.loginRedirect();
-            isAuthenticated.value = true;
-
-            console.log(sss);
+            await myMSALObj.loginRedirect();
             
-            console.log('Login successful');
 
             
         } catch (error) {
@@ -51,6 +47,7 @@ export function useAuth() {
             store.commit('SET_USER', state.user);
             console.log('Redirect successful', store.getters.isAuthenticated, store.getters.getUser);
 
+            return myMSALObj.getAllAccounts()[0].username;  
 
 
 

@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Apply from '../views/ApplyFM.vue'
 import PostFO from '../views/PostFO.vue'
-
+import FM from '../views/FMView.vue'
 import Dashboard from '../views/Dashboard.vue'
 
 const router = createRouter({
@@ -16,6 +16,11 @@ const router = createRouter({
       path: '/',
       name: 'dashboard',
       component: Dashboard
+    },
+    {
+      path: '/funding-applications',
+      name: 'FA',
+      component: FM
     },
     {
       path: '/submit-funding-oppurtunity',
