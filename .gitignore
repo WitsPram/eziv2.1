@@ -1,3 +1,5 @@
 ezezimali/node_modules/
 ezezimali/dist/
 backend/node_modules/
+ezezimali/node_modules/.vite/deps/_metadata.json
+ezezimali/node_modules/.vite/deps/@azure_msal-browser.js
