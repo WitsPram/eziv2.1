@@ -1,8 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Apply from '../views/ApplyFM.vue'
 import PostFO from '../views/PostFO.vue'
-
+import Reports from '../views/Reports.vue'
+import Notification from '../views/Notifications.vue'
 import Dashboard from '../views/Dashboard.vue'
+import Admin from '../views/Admin.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,6 +18,21 @@ const router = createRouter({
       path: '/',
       name: 'dashboard',
       component: Dashboard
+    },
+    {
+      path: '/notifications',
+      name: 'notifications',
+      component: Notification
+    },
+    {
+      path: '/reports',
+      name: 'reports',
+      component: Reports
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: Admin
     },
     {
       path: '/submit-funding-oppurtunity',
