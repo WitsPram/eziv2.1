@@ -2,7 +2,7 @@
       <header class="p-8 pb-0">
         <nav class="bg-white border-gray-200 dark:bg-gray-900">
   <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-  <router-link to="./" class="flex items-center space-x-3 rtl:space-x-reverse">
+  <router-link to="/" class="flex items-center space-x-3 rtl:space-x-reverse">
       <img src="../assets/logo.png"  height="70" width="70" alt="Logo" />
       <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Ezezimalis</span>
   </router-link>
