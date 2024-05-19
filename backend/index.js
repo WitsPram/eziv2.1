@@ -30,17 +30,27 @@ app.listen( portt, () => {
 
 const baseurl = process.env.PORT ? "https://ezezimalii.azurewebsites.net/" : 'http://localhost:'+portt;
 
-fetch(baseurl+'/api/v1/auth/acceptOrDenyApplicant/', {
-  method: 'PUT',
+const currentDate = new Date();
+
+
+fetch(baseurl+'/api/v1/auth/getApplicationsForFundingOpps/pookies', {
+  method: 'POST',
   headers: {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    "status": "Rejected",
-    "id": 10
+    "title" : "title",
+    "summary" : "summary",
+    "description" : "description",
+    "fund_manager_email" : "pookies",
+    "end_date" : currentDate.toISOString(),
+    "type" : "Educational",
+    "amount" : "R1000"
   }
   ) 
 })
 .then(response => response.json())
 .then(data => console.log(data))
 .catch(error => console.error('Error:', error));
+
+

@@ -23,6 +23,8 @@ onMounted
 
  
       <RouterView />
+
+      
       <footer>
         <article class="max-w-screen-xl mx-auto p-8">
           <p class="text-center text-gray-500">© 2024 Ezezimali. All rights reserved.</p>

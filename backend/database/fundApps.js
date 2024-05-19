@@ -43,10 +43,7 @@ async function insertFundingApp(object) {
             SELECT 1 FROM fundersApps
             WHERE applicant_email = '${object.email}'
               AND justification = '${object.justification}'
-        );
-        
-        
-
+        ); 
         `);
 
         // Close the connection pool

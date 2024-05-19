@@ -3,6 +3,7 @@ import Apply from '../views/ApplyFM.vue'
 import PostFO from '../views/PostFO.vue'
 import Reports from '../views/Reports.vue'
 import Notification from '../views/Notifications.vue'
+import FM from '../views/FMView.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Admin from '../views/Admin.vue'
 
@@ -33,6 +34,9 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: Admin
+      path: '/funding-applications',
+      name: 'FA',
+      component: FM
     },
     {
       path: '/submit-funding-oppurtunity',
