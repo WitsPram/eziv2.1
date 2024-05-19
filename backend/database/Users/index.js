@@ -55,6 +55,31 @@ if (insertResult.rowsAffected[0] === 1) {
         throw err; // Re-throw the error to handle it in the caller
     }
 }
+
+async function readAllUsers() {
+    try {
+        // Create a new connection pool
+        const pool = new ConnectionPool(connectionString);
+        await pool.connect();
+
+        console.log("Reading rows from the Table...");
+
+        // Perform a SELECT query to retrieve all users
+        const resultSet = await pool.request().query(`
+            SELECT *
+            FROM [User] where disabled = 0;
+        `);
+
+        // Close the connection pool
+        await pool.close();
+
+        return resultSet.recordset;
+    } catch (err) {
+        console.error(err.message);
+        throw err; // Re-throw the error to handle it in the caller
+    }
+}
+
 // async function readerUserData(userID) {
 //     try {
 //         var poolConnection = await sql.connect(connectionString);
@@ -117,7 +142,7 @@ async function insertUserData(email, profile_pic_url) {
     }
 }
 
-async function updateUserData(email, profile_pic_url) {
+async function updateUserPfp(email, profile_pic_url) {
     try {
         // Connect to the database
 
@@ -148,6 +173,37 @@ async function updateUserData(email, profile_pic_url) {
     }
 }
 
+async function blockUser(email) {
+    try {
+        // Connect to the database
+
+        const poolConnection = await sql.connect(config);
+
+
+            console.log("Updating!!")
+        const resultSet = await poolConnection.request().query(`
+        UPDATE [User]
+        SET disabled = 1
+        WHERE email = '${email}';`);
+
+        await poolConnection.close();
+
+        let returnObj = null;
+
+        if (resultSet.rowsAffected[0] == 1) {
+            returnObj = { "message" : "Success"};
+        }else{
+            returnObj = { "message" : "Failure"};
+        }
+        console.log(returnObj)
+        return returnObj; 
+        
+    } catch (err) {
+        console.error(err.message);
+        throw err; // Re-throw the error to handle it in the caller
+    }
+}
+
 
 // insertUserData("fhddbsjkf", "d")
 // updateUserData("fhddbdsdsjkf", "f")
@@ -155,6 +211,8 @@ async function updateUserData(email, profile_pic_url) {
 module.exports = {
     readerUserData,
     insertUserData,
-    updateUserData
+    blockUser,
+    readAllUsers,
+    updateUserPfp
 };
 // module.exports = insertUserData;

@@ -65,6 +65,10 @@ async function insertFundingApp(object) {
 
 // admin evaluates funding applications 
 // approve or reject new fund managers
+
+// who u want to update ie email
+// the verdict ie Approved or Rejected
+
 async function updateFundingApp(object) {
     try {
         // Create a new connection pool
@@ -79,6 +83,7 @@ async function updateFundingApp(object) {
 SET evaluated = 1
 WHERE applicant_email = '${object.email}';`);
 
+
         // Close the connection pool
         
         let returnObj = { message: "Failure to Evaluate" };
@@ -87,7 +92,7 @@ WHERE applicant_email = '${object.email}';`);
             returnObj.message = "Successfully Evaluated and rejected";
             
             
-            if (object.verdict == 'approved'){
+            if (object.verdict == 'Approved'){
                 const response = await pool.request().query(`
                 UPDATE [User]
                          SET user_type = 'Fund Manager'

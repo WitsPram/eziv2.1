@@ -38,7 +38,7 @@
             <router-link to="/notifications" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Notifications</router-link>
           </li>
           <li v-if="userType === 'Fund Manager'">
-            <router-link to="/earnings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">View Earnings</router-link>
+            <router-link to="/reports" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">View Reports</router-link>
           </li>
 
             
@@ -119,7 +119,7 @@ import { mapGetters } from 'vuex';
             console.log('User datasss:', data);
              this.pfpUrl = data.profile_pic_url;
              this.userType = data.user_type;
-             this.userType = "Fund Manager"
+            //  this.userType = "Fund Manager"
             // userDetails.value = data;
           } else {
             console.log('Failed to fetch user data');
