@@ -54,10 +54,17 @@
   </template>
     
   <script>
+  import { mapGetters } from 'vuex';
   export default {
     props: {
-      opp: Object // Assuming opp is passed as a prop
+      opp: Object,
+      userType: String
     },
+
+    computed: {
+    ...mapGetters([
+      'getUser', 'isAuthenticated', 'getUserType'
+    ]),},
     data() {
       return {
         editMode: false,
@@ -66,6 +73,9 @@
         editedType: '',
         editedSummary: ''
       };
+    },
+    mounted(){
+        // alert("jdsnfbds#"+this.userType);    
     },
     methods: {
         getImageSrcEdit() {
@@ -98,6 +108,10 @@
         let adminRequired = false;
         this.opp.title = this.editedTitle;
         this.opp.summary = this.editedSummary;
+        if (this.userType==='Admin') {
+        this.opp.amount = "R"+this.editedAmount;
+       }
+
         if (this.opp.amount !== "R"+this.editedAmount) {
           adminRequired = true;
         }
@@ -106,6 +120,10 @@
         this.editMode = false;
 
        const baseurl = "http://localhost:"+3019;
+
+
+
+       
        fetch(baseurl+'/api/v1/auth/updateFundingOpp/', {
   method: 'PUT',
   headers: {
@@ -114,6 +132,7 @@
   body: JSON.stringify({
     "title" : this.opp.title,
     "summary":  this.opp.summary,
+    "amount": this.opp.amount,
     'type': this.opp.type,
     'id' : id,
   }

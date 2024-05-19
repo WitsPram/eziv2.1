@@ -11,7 +11,7 @@
   
           <div class="opp-card" v-for="opp in data" :key="opp.id">
 
-            <opp-card-edit :opp="opp"></opp-card-edit>
+            <opp-card-edit :opp="opp" :userType="userType"></opp-card-edit>
           </div>
   
         </div>
@@ -27,7 +27,8 @@ import oppCardEdit from '../components/opp-card-edit.vue';
   components: { oppCardEdit },
     data() {
       return {
-        data: []
+        data: [],
+        userType: 'Applicant'
       };
     },
     mounted(){
@@ -35,30 +36,42 @@ import oppCardEdit from '../components/opp-card-edit.vue';
     },
     computed: {
       ...mapGetters([
-        'getUser', 'isAuthenticated'
+        'getUser', 'isAuthenticated', 'getUserType'
       ]),
     },
     methods: {
       async getEmail(){
         return await this.getUser.username;
       },
+      async gettUserType(){
+        return await this.getUserType;
+      },
         async readFundOpps() {
             let email = await this.getEmail();
-
+            
             // alert(email);
             const baseurl = 
             "http://localhost:"+3019;
             // // "https://ezezimalii.azurewebsites.net/" 
             const url = baseurl+'/api/v1/auth/readFundOppsForFM/'+email;
-            const response = await fetch(url, {  method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
+            let response = await fetch(url, {  method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
     }});
-  
-            const data = await response.json();
-            console.log(data);
-            // alert(data);
-            this.data = data;
+    
+    this.userType = await this.gettUserType();
+
+    if (this.userType === "Admin") 
+      response = await fetch(baseurl+'/api/v1/auth/readFundOpps/'+email, {  method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+    }});
+    
+    const data = await response.json();
+    console.log(data);
+    // alert(data);
+    this.data = data;
+    // alert(userType);
         }
 
     }

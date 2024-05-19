@@ -139,7 +139,8 @@ async function updateFundingOpp(object) {
             SET 
                 title = '${object.title}',
                 summary = '${object.summary}',
-                type = '${object.type}'
+                type = '${object.type}',
+                amount = '${object.amount}'
             WHERE 
                 id = ${object.id};
         `);

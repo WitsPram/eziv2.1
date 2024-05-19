@@ -20,7 +20,7 @@
           <li>
             <router-link to="/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</router-link>
           </li>
-          <li v-if="userType === 'Fund Manager'">
+          <li v-if="userType === 'Fund Manager' || userType === 'Admin'">
             <router-link to="/view-funding-oppurtunities" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">View opportunities</router-link>
           </li>
           <li v-if="userType === 'Fund Manager'">
@@ -63,6 +63,7 @@
   import { onMounted } from 'vue';
   import { useAuth } from '../useAuth';
   import { myMSALObj, state } from '../authService';
+  import store from '../store/index';
 
   import { ref , watch} from 'vue';
 
@@ -100,7 +101,7 @@ import { mapGetters } from 'vuex';
 
     computed: {
     ...mapGetters([
-      'getUser', 'isAuthenticated'
+      'getUser', 'isAuthenticated', 'getUserType'
     ]),
     userName() {
       if (this.getUser) {
@@ -119,7 +120,15 @@ import { mapGetters } from 'vuex';
             console.log('User datasss:', data);
              this.pfpUrl = data.profile_pic_url;
              this.userType = data.user_type;
-            //  this.userType = "Fund Manager"
+            //  this.userType = "Admin"
+            //  store.commit('SET_USER', state.user);
+             store.commit('SET_USER_TYPE', this.userType);
+            //  alert("hehehe"+this.getUserType)
+
+            //  alert(store.commit('GET_USERT'));
+
+             
+             
             // userDetails.value = data;
           } else {
             console.log('Failed to fetch user data');
@@ -128,6 +137,16 @@ import { mapGetters } from 'vuex';
         .catch(error => console.error('Error:', error));
       };
         fetchUserDetails(this.getUser.username, this.getUser.name);
+
+        // const userType = await this.getUserType;
+        // alert("gdf",userType)
+        // Assuming you have access to the Vuex store instance
+        // store.dispatch('setUserType', { userType: this.userType });
+
+        // console.log('User type:', this.userType);
+
+        // alert(this.userType)
+
         return this.getUser.name;
       } else {
         return 'User';
@@ -140,6 +159,12 @@ import { mapGetters } from 'vuex';
       return this.getUser ? this.getUser.username : 'example@gmail.com';
 
     },
+
+    userTypee() {
+
+return this.getUserType ? this.getUserType : 'none';
+
+},
   },
   mounted() {
     console.log("jfnkjss");

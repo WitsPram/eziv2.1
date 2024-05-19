@@ -147,7 +147,6 @@ router.post('/insertFundingApp/', async (req, res) => {
 
 router.post('/readAllUsers/', async (req, res) => {
     try {
-
         const userData = await readAllUsers();
         res.status(200).json(userData); 
     } catch (error) {
