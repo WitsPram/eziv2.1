@@ -1,15 +1,13 @@
 <template>
-    <div class="dashboard">
-        
-      <!-- <router-link to="/apply-funding-manager">
-        <button class="dashboard-button">Apply to be a Fund Manager</button>
-      </router-link> -->
-      <div class="fundingOpps">
-        
-
-
-        <div class="opp-card" v-for="opp in fundingOpps" :key="opp.id">
-            <div class=" opp-card block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+  <section class="dashboard">
+      
+    <!-- <router-link to="/apply-funding-manager">
+      <button class="dashboard-button">Apply to be a Fund Manager</button>
+    </router-link> -->
+    <section class="fundingOpps">
+      
+      <article class="opp-card" v-for="opp in fundingOpps" :key="opp.id">
+          <section class=" opp-card block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
 
 <img v-if="opp.type == 'Educational'" width="50" height="50" src="https://svgsilh.com/svg/2429310.svg" alt="education type">
 
@@ -22,137 +20,137 @@
 <br>
 <p class="font-normal text-gray-700 dark:text-gray-400">{{ opp.summary }}</p>
 <router-link :to="'/apply-funding-opportunity/' + opp.id" class="download-button">Apply for Funding
-            </router-link>
-        </div>
-        </div>
+          </router-link>
+      </section>
+      </article>
 
-      </div>
-    </div>
-  </template>
+    </section>
+  </section>
+</template>
+
+<script>
+import { mapGetters } from 'vuex';
+
+export default {
   
-  <script>
-  import { mapGetters } from 'vuex';
-  
-  export default {
-    
-    data() {
-      return {
-        fundingOpps: [],
-        formData: {
-          title: '',
-          summary: '',
-          description: '',
-          agree: false
-        }
-      };
-    },
-    computed: {
-      ...mapGetters([
-        'getUser', 'isAuthenticated'
-      ]),
-    },
-    methods: {
-      async getEmail(){
-        return await this.getUser.username;
-      },
-      submitForm() {
-        // ... existing code ...
-      },
-      async readFundOpps() {
-        const email = await this.getEmail();
-        const baseurl = 
-        // 'http://localhost:'+3019;
-        "https://ezezimalii.azurewebsites.net/";
-        const response = await fetch(baseurl+'/api/v1/auth/readFundOpps/'+email, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        });
-        const data = await response.json();
-        this.fundingOpps = data;
+  data() {
+    return {
+      fundingOpps: [],
+      formData: {
+        title: '',
+        summary: '',
+        description: '',
+        agree: false
       }
+    };
+  },
+  computed: {
+    ...mapGetters([
+      'getUser', 'isAuthenticated'
+    ]),
+  },
+  methods: {
+    async getEmail(){
+      return await this.getUser.username;
     },
-    created() {
-      this.readFundOpps();
+    submitForm() {
+      // ... existing code ...
+    },
+    async readFundOpps() {
+      const email = await this.getEmail();
+      const baseurl = 
+      // 'http://localhost:'+3019;
+      "https://ezezimalii.azurewebsites.net/";
+      const response = await fetch(baseurl+'/api/v1/auth/readFundOpps/'+email, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+      const data = await response.json();
+      this.fundingOpps = data;
     }
-  };
-  </script>
+  },
+  created() {
+    this.readFundOpps();
+  }
+};
+</script>
 
 
 <style scoped>
-  .dashboard {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .dashboard-title {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .dashboard-button {
-    display: block;
-    width: 100%;
-    background-color: #4CAF50;
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    font-size: 16px;
-    margin: 20px 0;
-    cursor: pointer;
-  }
-  
-  .fundingOpps {
-    display: flex;
-    /* background: #4CAF50; */
-    gap: 2rem;
-    /* width: 100vw; */
-    flex-wrap: wrap;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-evenly;
-  }
-  
-  .opp-card {
-    width: 25rem;
-    padding: 1.5rem;
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
-  }
+.dashboard-title {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-  .opp-card:hover{
-    transform: translateY(-5px);
-    transition: transform 0.3s;
-  }
-  
-  .opp-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: start;
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  
-  .opp-type,
-  .opp-amount,
-  .opp-description,
-  .opp-end-date {
-    margin-bottom: 10px;
-  }
-  
-  .opp-button {
-    background-color: #4CAF50;
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-  }
-  </style>
+.dashboard-button {
+  display: block;
+  width: 100%;
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  margin: 20px 0;
+  cursor: pointer;
+}
+
+.fundingOpps {
+  display: flex;
+  /* background: #4CAF50; */
+  gap: 2rem;
+  /* width: 100vw; */
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.opp-card {
+  width: 25rem;
+  padding: 1.5rem;
+
+}
+
+.opp-card:hover{
+  transform: translateY(-5px);
+  transition: transform 0.3s;
+}
+
+.opp-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: start;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.opp-type,
+.opp-amount,
+.opp-description,
+.opp-end-date {
+  margin-bottom: 10px;
+}
+
+.opp-button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+</style>

@@ -1,50 +1,43 @@
-
 <template>
-    <div class="w-full flexCenter" id="form-container">
-      <form @submit.prevent="submitForm">
-        <h2  id="heading">Application for funding opportunity</h2>
-  
-        <label for="title" class="input-labels">Title</label>
-        <input type="text" id="title" class="input" v-model="formData.title" placeholder="Students Employment Grant" required />
-  
-        <label for="summary" class="input-labels">Summary</label>
-        <input type="text" id="summary" class="input" v-model="formData.summary" required placeholder="Build a foundation..." />
+  <section class="w-full flexCenter" id="form-container">
+    <form @submit.prevent="submitForm">
+      <h2  id="heading">Application for funding opportunity</h2>
 
-        <label for="amount" class="input-labels">Amount</label>
-        <input type="number" id="amount" class="input" v-model="formData.amount" required placeholder="R1000" />
+      <label for="title" class="input-labels">Title</label>
+      <input type="text" id="title" class="input" v-model="formData.title" placeholder="Students Employment Grant" required />
 
-        <label for="end_date" class="input-labels">End date</label>
-        <input type="date" id="end_date" class="input" v-model="formData.end_date" required placeholder="R1000" />
+      <label for="summary" class="input-labels">Summary</label>
+      <input type="text" id="summary" class="input" v-model="formData.summary" required placeholder="Build a foundation..." />
 
+      <label for="amount" class="input-labels">Amount</label>
+      <input type="number" id="amount" class="input" v-model="formData.amount" required placeholder="R1000" />
 
-        <label for="type" class="input-labels">Event type</label>
-        <div class="radio-group">
+      <label for="end_date" class="input-labels">End date</label>
+      <input type="date" id="end_date" class="input" v-model="formData.end_date" required placeholder="R1000" />
 
+      <label for="type" class="input-labels">Event type</label>
+      <fieldset class="radio-group">
+        <label class="radio-label flexRow">
+          <input type="radio" name="type" value="Educational" checked v-model="formData.type"> Educational </label>
 
           <label class="radio-label flexRow">
-            <input type="radio" name="type" value="Educational" checked v-model="formData.type"> Educational </label>
+          <input type="radio" name="type" value="Business" v-model="formData.type"> Business </label>
 
-            <label class="radio-label flexRow">
-            <input type="radio" name="type" value="Business" v-model="formData.type"> Business </label>
+          <label class="radio-label flexRow">
+          <input type="radio" name="type" value="Event" v-model="formData.type"> Event </label>
+      </fieldset>
 
-            <label class="radio-label flexRow">
-            <input type="radio" name="type" value="Event" v-model="formData.type"> Event </label>
+      <label for="description" class="input-labels">Description</label>
+      <textarea id="description" required rows="4" class="input textarea" v-model="formData.description" placeholder="This grant offers..."></textarea>
 
-</div>
-  
-        <label for="description" class="input-labels">Description</label>
-        <textarea id="description" required rows="4" class="input textarea" v-model="formData.description" placeholder="This grant offers..."></textarea>
-  
-        <div class="flexRow">
-          <div>
-            <input id="terms" type="checkbox" value="" v-model="formData.agree" required />
-          </div>
-          <label for="terms" class="input-labels">I agree with the <a href="#" class="text-blue-600 hover:underline">terms and conditions</a></label>
-        </div>
-        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
-      </form>
-    </div>
-  </template>
+      <span class="flexRow">
+        <input id="terms" type="checkbox" value="" v-model="formData.agree" required />
+        <label for="terms" class="input-labels">I agree with the <a href="#" class="text-blue-600 hover:underline">terms and conditions</a></label>
+      </span>
+      <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+    </form>
+  </section>
+</template>
   
   <script>
   import { mapGetters } from 'vuex';

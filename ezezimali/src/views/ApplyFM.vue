@@ -1,29 +1,26 @@
-
 <template>
-  <div class="w-full flexCenter" id="form-container">
+  <main class="w-full flexCenter" id="form-container">
     <form @submit.prevent="submitForm">
       <h2 id="heading">Application for Fund Manager</h2>
     <p>As a funding manager, you play a pivotal role in sourcing and securing financial resources for community projects. Your tasks include identifying funding opportunities, crafting compelling proposals, managing budgets, fostering relationships with donors, ensuring regulatory compliance, and contributing to strategic planning. Your efforts are instrumental in ensuring the sustainability and success of community initiatives.</p>
 
     <br>
   
-    
       <label for="justification" class="input-labels">Your justification</label>
       <textarea id="justification" rows="4" class="input textarea" v-model="formData.justification" required placeholder="I would be a great fit because..."></textarea>
 
-      <div class="flexRow">
-        <div>
+      <fieldset class="flexRow">
+        <section>
           <input id="terms" type="checkbox" value="" v-model="formData.agree" required />
-        </div>
+        </section>
         <label for="terms" class="input-labels">I hearby nominate myself for the role of <b class="text-blue-500">Fund Manager</b></label>
-      </div>
+      </fieldset>
       <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Submit</button>
     </form>
-  </div>
+  </main>
 </template>
 
 <script>
-
 import { mapGetters } from 'vuex';
 
 export default {
@@ -48,50 +45,37 @@ export default {
     },
     submitForm() {
       if (this.formData.agree) {
-            // alert('Posted successfully!');
-
-        // console.log()
         this.getEmail().then(email => {
           if (email){
-            const baseurl = 
-        // 'http://localhost:'+3019;
-        // process.env.PORT ?
-        "https://ezezimalii.azurewebsites.net/" 
+            const baseurl = "https://ezezimalii.azurewebsites.net/" 
 
-fetch(baseurl+'/api/v1/auth/insertFundingApp/', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({"justification": this.formData.justification, "email": email}) 
-})
-.then(response => response.json())
-.then(data => {
-    if (data.message !== 'Failure') {
-        alert('Posted successfully!');
-    } else {
-        alert('Failed to post');
-    }
-})
-.catch(error => console.error('Error:', error));
+            fetch(baseurl+'/api/v1/auth/insertFundingApp/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({"justification": this.formData.justification, "email": email}) 
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message !== 'Failure') {
+                    alert('Posted successfully!');
+                } else {
+                    alert('Failed to post');
+                }
+            })
+            .catch(error => console.error('Error:', error));
           }
         });
-        // if (this.getEmail){
-        //   console.log('Email:', this.getEmail)
-        // }
-
-        
       }else {
         alert('Please agree to the terms and conditions');
-    }
+      }
     }
   }
 };
 </script>
 
-
 <style scoped>
-
 input{
   padding: 10px;
   margin-bottom: 15px;
@@ -140,8 +124,6 @@ scrollbar-width: none;
 color: #868e96;
 }
 
-
-
 button[type="submit"]{
   background-color: #007bff;
   color: #fff;
@@ -159,7 +141,6 @@ button[type="submit"]{
   font-weight: 600;
   color: #333;
   margin-bottom: 20px;
-
 }
 
 form{
@@ -170,7 +151,6 @@ form{
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   background-color: #fff;
-
 }
 
 .flexCenter{
