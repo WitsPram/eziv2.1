@@ -1,7 +1,13 @@
-const {sql , ConnectionPool } = require('mssql');
+require('dotenv').config();
 
+const {sql , ConnectionPool } = require('mssql');
 const { connectionString } = require('./config');
 
+const { BlobServiceClient } = require('@azure/storage-blob');
+const { v4: uuidv4 } = require('uuid');
+
+const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const CONTAINER_NAME = 'ezeziblobstorage'; // replace with your container name
 
 async function readapplicationsForFundingOpps (email) {
     const pool = new ConnectionPool(connectionString);
@@ -101,11 +107,32 @@ async function updateApplicationsForFundingOpps(object) {
     }
 }
 
+async function UploadToBlobStorage(object) {
+    if (!AZURE_STORAGE_CONNECTION_STRING) {
+        throw new Error('Azure Storage connection string is missing.');
+    }
+
+    const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
+    const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
+    const createContainerResponse = await containerClient.createIfNotExists();
+    console.log(`Create container ${CONTAINER_NAME} successfully`, createContainerResponse.succeeded);
+
+    const blobName = `${uuidv4()}.json`;
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    const content = JSON.stringify(object);
+    const uploadBlobResponse = await blockBlobClient.upload(content, Buffer.byteLength(content));
+    console.log(`Upload block blob ${blobName} successfully`, uploadBlobResponse.requestId);
+
+    const blobUrl = blockBlobClient.url;
+    return blobUrl;
+}
+
 // insertUserData("fhddbsjkf", "d")
 // updateUserData("fhddbdsdsjkf", "f")
 
 module.exports = {
     insertApplicationsForFundingOpps,
     readapplicationsForFundingOpps,
-    updateApplicationsForFundingOpps
+    updateApplicationsForFundingOpps,
+    UploadToBlobStorage
 };

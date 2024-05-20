@@ -4,7 +4,7 @@ const { insertFundingOpp,readFundOpps, readFundOppsForFM, updateFundingOpp } = r
 
 const { insertFundingApp, readFundApps, updateFundingApp } = require('../database/fundApps')
 
-const { insertApplicationsForFundingOpps, readapplicationsForFundingOpps, updateApplicationsForFundingOpps } = require('../database/applicationsForFundingOpps')
+const { insertApplicationsForFundingOpps, readapplicationsForFundingOpps, updateApplicationsForFundingOpps, UploadToBlobStorage } = require('../database/applicationsForFundingOpps')
 
 const router = Router();
 
@@ -173,6 +173,16 @@ router.put('/blockUser/', async (req, res) => {
         const { email } = req.body;
         const userData = await blockUser(email);
         res.status(200).json(userData); 
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.post('/blobStore/', async (req, res) => {
+    try {
+        const bloburl = await UploadToBlobStorage(req.body);
+        res.status(200).json(bloburl); 
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");
