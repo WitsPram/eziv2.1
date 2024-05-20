@@ -5,9 +5,9 @@ const { insertFundingOpp,readFundOpps } = require('../database/fundingOpps')
 const { insertFundingApp, readFundApps, updateFundingApp } = require('../database/fundApps')
 
 const { insertApplicationsForFundingOpps, readapplicationsForFundingOpps, updateApplicationsForFundingOpps } = require('../database/applicationsForFundingOpps')
+const { insertNotification, readNotifications, evaluateNotification } = require('../database/notifications')
 
 const router = Router();
-
 router.post('/getUserData/:id', async (req, res) => {
     try {
         // console.log("moop");
@@ -134,6 +134,43 @@ router.put('/updateUserProfilePic/', async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+
+router.post('/insertNotification/', async (req, res) => {
+    try {
+        // console.log("moop");
+        const userData = await insertNotification(req.body);
+        res.status(200).json(userData); 
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.put('/evaluateNotification/:id', async (req, res) => {
+    try {
+        // console.log(req.body);
+        const userData = await evaluateNotification(req.params.id);
+
+        res.status(200).json(userData); 
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.post('/readNotifications/:id', async (req, res) => {
+    try {
+        // console.log("moop");
+        const id = req.params.id;
+        const userData = await readNotifications(id);
+        res.status(200).json(userData); 
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+
 
 
 

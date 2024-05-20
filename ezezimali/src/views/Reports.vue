@@ -6,20 +6,28 @@
       <h2>Statistics</h2>
       <div class="stats">
         <div class="stat-item total-funds-used" id="fundsUsed">
-          <h3>Total Funds Used</h3>
+          <h3>Your Managed Funds</h3>
           <ul>
-            <li v-for="(value, key) in fundsUsedData" :key="key">{{ key }}: {{ value }}</li>
+            <li v-for="(amount, title) in fundsUsedData" :key="title">{{ title }}: R{{ amount }}</li>
+            <li class="total-amount" :key="'total'">Total: R{{ totalFundsUsed }}</li>
           </ul>
         </div>
         <div class="stat-item" id="acceptedUsers">
-          <h3>Accepted to Each Fund</h3>
+          <h3>Search for applicant</h3>
+          <input type="text" v-model="searchTerm" placeholder="Enter user" />
+          <button @click="searchUser">Search</button>      
           <ul>
-            <li v-for="(count, fund) in acceptedCounts" :key="fund">{{ fund }}: {{ count }}</li>
+            Funds Applied To: {{ entryCount }}<br>
+            <br>
+            <li v-for="fundName in matchedFundNames" :key="fundName">{{ fundName }}</li>
           </ul>
         </div>
         <div class="stat-item" id="awaitingFunds">
           <h3>Fund Applications Awaiting Approval/Rejection</h3>
-          <li v-for="(count, fund) in awaitingApproval" :key="fund">{{ fund }}: {{ count }}</li>
+          <ul>
+            <li>Work in progress...</li>
+            <li v-for="(count, fund) in awaitingApproval" :key="fund">{{ fund }}: {{ count }}</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -33,18 +41,20 @@ export default {
   },
   data() {
     return {
-      inputText: '',
-      id: -1,
-      data: null,
-      fundsUsedData: {}, // Initialize fundsUsedData object
-      acceptedCounts: {}, // Add this if you want to process acceptedCounts as well
-      awaitingApproval: {} // Add this if you want to process awaitingApproval as well
+      fundsUsedData: {},
+      acceptedCounts: {},
+      awaitingApproval: {},
+      totalFundsUsed: 0,
+      additionalData: {},
+      entryCount: 0, // New data property for the count of entries
+      matchedFundNames: [], // New data property for matched fund names
+      searchTerm: '', // New data property for search term
     };
   },
   methods: {
     async fetchData() {
       try {
-        const baseurl = 'http://localhost:5173';
+        const baseurl = 'http://localhost:3019';
         const response = await fetch(baseurl + '/api/v1/auth/readFundOpps/', {
           method: 'POST',
           headers: {
@@ -57,36 +67,78 @@ export default {
         }
 
         const data = await response.json();
-        this.data = data;
-        console.log(data);
-        
-        this.processData(data); // Process the fetched data
-        
+        this.processData(data);
       } catch (error) {
         console.error('Error:', error);
       }
     },
     processData(data) {
-      // Initialize an empty object to hold the amounts
-      const fundsUsed = {};
+      let fundsUsedData = {};
+      let totalFundsUsed = 0;
+      this.fundIds = [];
+      this.fundNames = [];
 
-      // Loop through the data and aggregate the amounts
+      // Extract the total funds used data
       data.forEach(item => {
-        if (item.amount && item.fundName) {
-          if (!fundsUsed[item.fundName]) {
-            fundsUsed[item.fundName] = 0;
-          }
-          fundsUsed[item.fundName] += item.amount;
-        }
+        // Remove non-numeric characters and convert to integer
+        const amount = parseInt(item.amount.replace(/[^0-9]/g, ''), 10);
+        fundsUsedData[item.title] = amount;
+        totalFundsUsed += amount;
+        this.fundIds.push(item.id);
+        this.fundNames.push(item.title);
       });
 
-      // Update the fundsUsedData with the processed amounts
-      this.fundsUsedData = fundsUsed;
+      this.fundsUsedData = fundsUsedData;
+      this.totalFundsUsed = totalFundsUsed;
+
+      // Example data for acceptedCounts and awaitingApproval
+      this.acceptedCounts = {
+        "Fund A": 10,
+        "Fund B": 5
+      };
+
+      this.awaitingApproval = {
+        "Fund A": 2,
+        "Fund B": 3
+      };
+    },
+    async fetchAdditionalData(id) {
+      try {
+        const baseurl = 'http://localhost:3019';
+        const response = await fetch(`${baseurl}/api/v1/auth/getApplicationsForFundingOpps/${id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        this.additionalData = data;
+        this.entryCount = data.length;
+
+        // Extract appIDs and find matching fund names
+        const appIDs = data.map(item => item.fundingOpp_ID);
+        this.matchedFundNames = this.fundIds
+          .map((id, index) => appIDs.includes(id) ? this.fundNames[index] : null)
+          .filter(name => name !== null);
+
+        console.log(data);
+      } catch (error) {
+        console.error('Error fetching additional data:', error);
+      }
+    },
+    searchUser() {
+      if (this.searchTerm) {
+        this.fetchAdditionalData(this.searchTerm);
+      }
     }
   }
 };
 </script>
-
 
 <style scoped>
 /* Updated styling for Total Funds Used */
@@ -127,6 +179,7 @@ body {
 
 .stat-item {
   background: #ffffff;
+  
   border: 1px solid #d0d0d0;
   border-radius: 12px;
   padding: 20px;
@@ -147,7 +200,14 @@ h1 {
   margin-bottom: 20px;
   text-decoration: underline;
 }
-
+input {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 40%;
+  color: black;
+}
 h2 {
   font-size: 26px;
   font-weight: bold;
@@ -165,13 +225,15 @@ h3 {
 ul {
   list-style-type: none;
   padding: 0;
+  color: black
 }
 
 li {
   font-size: 16px;
   margin-bottom: 5px;
-  color: #388e3c;
+  color: black;
 }
+
 #fundsUsed {
   background: #bdffce;
   color: #fff;
@@ -183,6 +245,16 @@ li {
 #awaitingFunds {
   background: #f8d7da;
   color: #fff;
+}
+button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-left: 5px;
 }
 
 @keyframes fadeIn {
