@@ -4,9 +4,9 @@ const { connectionString } = require('./config');
 
 
 async function readapplicationsForFundingOpps (email) {
+    const pool = new ConnectionPool(connectionString);
     try {
         // Create a new connection pool
-        const pool = new ConnectionPool(connectionString);
         await pool.connect();
 
         console.log("Reading rows from the applicationsForFundingOpps Table...");
@@ -24,15 +24,16 @@ async function readapplicationsForFundingOpps (email) {
 
         return resultSet.recordset;
     } catch (err) {
+        await pool.close();
         console.error(err.message);
         throw err; // Re-throw the error to handle it in the caller
     }
 }
 
 async function insertApplicationsForFundingOpps(object) {
+    const pool = new ConnectionPool(connectionString);
     try {
         // Create a new connection pool
-        const pool = new ConnectionPool(connectionString);
         await pool.connect();
 
         console.log("Inserting data into applicationsForFundingOpps...");
@@ -61,15 +62,16 @@ WHERE NOT EXISTS (
         console.log(returnObj);
         return returnObj;
     } catch (err) {
+        await pool.close();
         console.error(err.message);
         throw err; // Re-throw the error to handle it in the caller
     }
 }
 
 async function updateApplicationsForFundingOpps(object) {
+    const pool = new ConnectionPool(connectionString);
     try {
         // Create a new connection pool
-        const pool = new ConnectionPool(connectionString);
         await pool.connect();
 
         console.log("Updating data in applicationsForFundingOpps...");
@@ -93,13 +95,11 @@ async function updateApplicationsForFundingOpps(object) {
         console.log(returnObj);
         return returnObj;
     } catch (err) {
+        await pool.close();
         console.error(err.message);
         throw err; // Re-throw the error to handle it in the caller
     }
 }
-
-
-
 
 // insertUserData("fhddbsjkf", "d")
 // updateUserData("fhddbdsdsjkf", "f")

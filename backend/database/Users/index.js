@@ -4,79 +4,70 @@ const config = require('../config.js');
 const { connectionString } = require('../config.js');
 
 async function readerUserData(userID) {
+    const pool = new ConnectionPool(connectionString);
     try {
         // Create a new connection pool
-        const pool = new ConnectionPool(connectionString);
         await pool.connect();
-
         console.log("Reading rows from the Table...");
 
         // Perform a SELECT query to check if the user exists
-const resultSet = await pool.request().query(`
-SELECT profile_pic_url, user_type, name
-FROM [User]
-WHERE email = '${userID}'
-`);
-let user = null;
+        const resultSet = await pool.request().query(`SELECT profile_pic_url, user_type, name FROM [User] WHERE email = '${userID}'`);
+        let user = null;
 
-// Check if the query returned no rows
-if (resultSet.recordset.length === 0) {
-// If no rows returned, insert the new user
-const insertResult = await pool.request().query(`
-    INSERT INTO [User] (email, profile_pic_url, user_type, created_at, disabled)
-    VALUES ('${userID}', 'https://cdn-icons-png.freepik.com/256/11419/11419168.png?semt=ais_hybrid', 'Applicant', GETDATE(), 0);
-`);
+        // Check if the query returned no rows
+        if (resultSet.recordset.length === 0) {
+            // If no rows returned, insert the new user
+            const insertResult = await pool.request().query(`INSERT INTO [User] (email, profile_pic_url, user_type, created_at, disabled) VALUES ('${userID}', 'https://cdn-icons-png.freepik.com/256/11419/11419168.png?semt=ais_hybrid', 'Applicant', GETDATE(), 0);`);
 
-// Check if the insertion was successful
-if (insertResult.rowsAffected[0] === 1) {
-    console.log("User inserted successfully.");
-    
-    return { "message": "Success", "profile_pic_url": "https://cdn-icons-png.freepik.com/256/11419/11419168.png?semt=ais_hybrid", "user_type": "Applicant" };
-} else {
-    console.error("Failed to insert user.");
-    user = { "message": "Failure"};
-}
-} else {
-
-    user = resultSet.recordset[0];
-    user.message = "Success";
-
-}
-
-
-
+            // Check if the insertion was successful
+            if (insertResult.rowsAffected[0] === 1) {
+                console.log("User inserted successfully.");
+                
+                return { "message": "Success", "profile_pic_url": "https://cdn-icons-png.freepik.com/256/11419/11419168.png?semt=ais_hybrid", "user_type": "Applicant" };
+            } else {
+                console.error("Failed to insert user.");
+                user = { "message": "Failure"};
+                //close connection only when we're certain application is finished
+                await pool.close();
+            }
+        } else {
+            user = resultSet.recordset[0];
+            user.message = "Success";
+        }
 
         // Close the connection pool
         await pool.close();
-
         return user;
     } catch (err) {
+        await pool.close();
         console.error(err.message);
         throw err; // Re-throw the error to handle it in the caller
+    } finally {
+        await pool.close();
     }
 }
 
 async function readAllUsers() {
+    const pool = new ConnectionPool(connectionString);
     try {
         // Create a new connection pool
-        const pool = new ConnectionPool(connectionString);
         await pool.connect();
 
         console.log("Reading rows from the Table...");
 
         // Perform a SELECT query to retrieve all users
-        const resultSet = await pool.request().query(`
-            SELECT *
-            FROM [User] where disabled = 0;
-        `);
+        const resultSet = await pool.request().query(`SELECT * FROM [User] where disabled = 0;`);
 
         // Close the connection pool
         await pool.close();
 
         return resultSet.recordset;
     } catch (err) {
+        await pool.close();
         console.error(err.message);
         throw err; // Re-throw the error to handle it in the caller
+    } finally {
+        await pool.close();
     }
 }
 
@@ -103,17 +94,12 @@ async function readAllUsers() {
 // }
 
 async function insertUserData(email, profile_pic_url) {
+
+    const poolConnection = new ConnectionPool(connectionString);
     try {
+        await poolConnection.connect();
         // Connect to the database
-
-        const poolConnection = await sql.connect(config);
-
-        // console.log("smurf", userExists)
-
         // Insert the row into the table
-
-        
-
         console.log("Inserting!!")
         const resultSet = await poolConnection.request().query(`IF NOT EXISTS (SELECT 1 FROM [User] WHERE email = '${email}')
         BEGIN
@@ -134,27 +120,24 @@ async function insertUserData(email, profile_pic_url) {
         }
         console.log(returnObj)
         return returnObj;        
-
-        
     } catch (err) {
         console.error(err.message);
         throw err; // Re-throw the error to handle it in the caller
+    } finally {
+        await poolConnection.close();
     }
 }
 
 async function updateUserPfp(email, profile_pic_url) {
+    const poolConnection = new ConnectionPool(connectionString);
     try {
         // Connect to the database
 
-        const poolConnection = await sql.connect(config);
-
+        // const poolConnection = await sql.connect(config);
+        await poolConnection.connect();
 
         console.log("Updating!!")
-        const resultSet = await poolConnection.request().query(`
-        UPDATE [User]
-        SET profile_pic_url = '${profile_pic_url}'
-        WHERE email = '${email}';`);
-
+        const resultSet = await poolConnection.request().query(`UPDATE [User] SET profile_pic_url = '${profile_pic_url}' WHERE email = '${email}';`);
         await poolConnection.close();
 
         let returnObj = null;
@@ -170,21 +153,16 @@ async function updateUserPfp(email, profile_pic_url) {
     } catch (err) {
         console.error(err.message);
         throw err; // Re-throw the error to handle it in the caller
+    } finally {
+        await poolConnection.close();
     }
 }
 
 async function blockUser(email) {
+    const poolConnection = new ConnectionPool(connectionString);
     try {
-        // Connect to the database
-
-        const poolConnection = await sql.connect(config);
-
-
-            console.log("Updating!!")
-        const resultSet = await poolConnection.request().query(`
-        UPDATE [User]
-        SET disabled = 1
-        WHERE email = '${email}';`);
+        console.log("Updating!!")
+        const resultSet = await poolConnection.request().query(`UPDATE [User] SET disabled = 1 WHERE email = '${email}';`);
 
         await poolConnection.close();
 
@@ -199,8 +177,11 @@ async function blockUser(email) {
         return returnObj; 
         
     } catch (err) {
+        await poolConnection.close();
         console.error(err.message);
         throw err; // Re-throw the error to handle it in the caller
+    } finally {
+        await poolConnection.close();
     }
 }
 

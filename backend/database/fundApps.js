@@ -5,9 +5,9 @@ const { connectionString } = require('./config');
 
 // admin reads all funding applications
 async function readFundApps(userID) {
+    const pool = new ConnectionPool(connectionString);
     try {
         // Create a new connection pool
-        const pool = new ConnectionPool(connectionString);
         await pool.connect();
 
         console.log("Reading rows from the fundersApps Table...");
@@ -18,6 +18,7 @@ async function readFundApps(userID) {
 
         return resultSet.recordset;
     } catch (err) {
+        await pool.close();
         console.error(err.message);
         throw err; // Re-throw the error to handle it in the caller
     }
@@ -25,9 +26,9 @@ async function readFundApps(userID) {
 
 // apply to be a fund manager 
 async function insertFundingApp(object) {
+    const pool = new ConnectionPool(connectionString);
     try {
         // Create a new connection pool
-        const pool = new ConnectionPool(connectionString);
         await pool.connect();
 
         console.log("Inserting data to fundersApps...");
@@ -58,6 +59,7 @@ async function insertFundingApp(object) {
         console.log(returnObj);
         return returnObj;
     } catch (err) {
+        await pool.close();
         console.error(err.message);
         throw err; // Re-throw the error to handle it in the caller
     }
@@ -70,18 +72,15 @@ async function insertFundingApp(object) {
 // the verdict ie Approved or Rejected
 
 async function updateFundingApp(object) {
+    const pool = new ConnectionPool(connectionString);
     try {
         // Create a new connection pool
-        const pool = new ConnectionPool(connectionString);
         await pool.connect();
 
         console.log("Updating fundersApps!!")
 
         // Update the row into the table
-        const resultSet = await pool.request().query(`
-        UPDATE [fundersApps]
-SET evaluated = 1
-WHERE applicant_email = '${object.email}';`);
+        const resultSet = await pool.request().query(`UPDATE [fundersApps] SET evaluated = 1 WHERE applicant_email = '${object.email}';`);
 
 
         // Close the connection pool
@@ -110,6 +109,7 @@ WHERE applicant_email = '${object.email}';`);
         console.log(returnObj);
         return returnObj;
     } catch (err) {
+        await pool.close();
         console.error(err.message);
         throw err; // Re-throw the error to handle it in the caller
     }
