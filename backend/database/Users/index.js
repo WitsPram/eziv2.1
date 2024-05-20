@@ -161,6 +161,7 @@ async function updateUserPfp(email, profile_pic_url) {
 async function blockUser(email) {
     const poolConnection = new ConnectionPool(connectionString);
     try {
+        await poolConnection.connect();
         console.log("Updating!!")
         const resultSet = await poolConnection.request().query(`UPDATE [User] SET disabled = 1 WHERE email = '${email}';`);
 
