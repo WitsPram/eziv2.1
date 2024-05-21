@@ -55,7 +55,10 @@
     methods: {
       async fetchData() {
         try {
-          const baseurl = 'http://localhost:3019';
+          const baseurl = 
+        //   'http://localhost:3019';
+          "https://ezezimalii.azurewebsites.net/";
+
           const response = await fetch(baseurl + '/api/v1/auth/readAllUsers', {
             method: 'POST',
             headers: {
@@ -77,7 +80,9 @@
 
       async block(email, index) {
         try {
-          const baseurl = 'http://localhost:3019';
+          const baseurl = 
+        //   'http://localhost:3019';
+        "https://ezezimalii.azurewebsites.net/";
           const response = await fetch(`${baseurl}/api/v1/auth/blockUser/`, {
             method: 'PUT',
             headers: {

@@ -6,6 +6,8 @@ import ApplyFO from '../views/ApplyFO.vue'
 import ViewFO from '../views/ViewFO.vue'
 import Dashboard from '../views/Dashboard.vue'
 import FMReqs from '../views/FMReqs.vue'
+import Reports from '../views/Reports.vue'
+import Notification from '../views/Notifications.vue'
 import block from '../views/Block.vue'  
 
 const router = createRouter({
@@ -15,6 +17,16 @@ const router = createRouter({
       path: '/apply-funding-manager',
       name: 'apply-funding-manager',
       component: Apply
+    },
+    {
+      path: '/reports',
+      name: 'reports',
+      component: Reports
+    },
+    {
+      path: '/notifications',
+      name: 'notifications',
+      component: Notification
     },
     {
       path: '/blockUser',

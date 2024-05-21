@@ -30,7 +30,7 @@
           </li>
           <!-- allows for blocking users or opps with an email id -->
           <li v-if="userType === 'Admin'">
-            <router-link to="/submit-funding-oppurtunity" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Administraion</router-link></li>
+            <router-link to="/blockUser" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Administraion</router-link></li>
             <li v-if="userType === 'Applicant'">
               <router-link to="/apply-funding-manager" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Manager Application</router-link>
             </li>
@@ -104,6 +104,7 @@ import { mapGetters } from 'vuex';
       'getUser', 'isAuthenticated', 'getUserType'
     ]),
     userName() {
+      
       if (this.getUser) {
         const fetchUserDetails = async (email, name) => {
         const baseurl = 
@@ -111,6 +112,7 @@ import { mapGetters } from 'vuex';
         // "http://localhost:3019"
         ;
 
+        console.log("jfnkjsssss",email);
         fetch(baseurl+`/api/v1/auth/getUserData/${email}`, {
           method: 'POST',
           headers: {
@@ -125,6 +127,7 @@ import { mapGetters } from 'vuex';
              this.pfpUrl = data.profile_pic_url;
              this.userType = data.user_type;
             //  this.userType = "Admin"
+            // this.userType = "Applicant"
             //  this.userType = "Fund Manager"
             //  store.commit('SET_USER', state.user);
              store.commit('SET_USER_TYPE', this.userType);
@@ -141,6 +144,8 @@ import { mapGetters } from 'vuex';
         })
         .catch(error => console.error('Error:', error));
       };
+      console.log("jfnkjss",this.getUser.username);
+
         fetchUserDetails(this.getUser.username, this.getUser.name);
 
         // const userType = await this.getUserType;

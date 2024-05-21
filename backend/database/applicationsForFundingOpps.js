@@ -2,6 +2,13 @@ const {sql , ConnectionPool } = require('mssql');
 
 const { connectionString } = require('./config');
 
+const { BlobServiceClient } = require('@azure/storage-blob');
+const { v4: uuidv4 } = require('uuid');
+
+
+
+const AZURE_STORAGE_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=ezeziblobstorage;AccountKey=v6RC6oOP+Ug0YZ7o0nzUfi6XKo1qYol/Cl8fkXvYotxo83JTSSmbyOXyvJWwXBJW1Cyhmuc1y/s6+AStOsHNQw==;EndpointSuffix=core.windows.net";
+const CONTAINER_NAME = 'ezeziblobstorage'; // replace with your container name
 
 async function readapplicationsForFundingOpps (email) {
     try {
@@ -98,7 +105,27 @@ async function updateApplicationsForFundingOpps(object) {
     }
 }
 
+async function UploadToBlobStorage(object) {
+    if (!AZURE_STORAGE_CONNECTION_STRING) {
+        throw new Error('Azure Storage connection string is missing.');
+    }
 
+    const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
+    const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
+    const createContainerResponse = await containerClient.createIfNotExists();
+    console.log(`Create container ${CONTAINER_NAME} successfully`, createContainerResponse.succeeded);
+
+    const blobName = `${uuidv4()}.pdf`;
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+    const uploadBlobResponse = await blockBlobClient.uploadFile(object.path);
+
+    console.log(`Upload block blob ${blobName} successfully`, uploadBlobResponse.requestId);
+
+    const blobUrl = blockBlobClient.url;
+    console.log(`Blob Url: ${blobUrl}`);
+    return blobUrl;
+}
 
 
 // insertUserData("fhddbsjkf", "d")
@@ -107,5 +134,6 @@ async function updateApplicationsForFundingOpps(object) {
 module.exports = {
     insertApplicationsForFundingOpps,
     readapplicationsForFundingOpps,
+    UploadToBlobStorage,
     updateApplicationsForFundingOpps
 };

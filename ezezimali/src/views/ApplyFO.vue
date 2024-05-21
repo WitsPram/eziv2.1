@@ -10,7 +10,8 @@
   
     
     <label for="documents" class="input-labels">Supporting Documents</label>
-<input type="file" required id="documents" />
+
+<input type="file" @change="onFileChange" required id="documents" />
       <label for="applicant_motivation" class="input-labels">Your justification</label>
       <textarea id="applicant_motivation" rows="4" class="input textarea" v-model="formData.applicant_motivation" required placeholder="I would be a great fit because..."></textarea>
       <div class="flexRow">
@@ -35,6 +36,7 @@ data() {
       title: '',
       summary: '',
       description: '',
+      selectedFile: null,
       agree: false,
       documents: null
     }
@@ -45,24 +47,53 @@ data() {
     ]),
   },
 methods: {
-  handleFileUpload(event) {
-    this.formData.documents = event.target.files[0];
-  },    async getEmail(){
+  onFileChange(e) {
+      this.selectedFile = e.target.files[0];
+    },
+    async getEmail(){
       return await this.getUser.username;
+    },
+    async uploadFile() {
+      if (!this.selectedFile) {
+        alert('Please select a file first!');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', this.selectedFile);
+
+      try {
+        const baseurl =
+        // 'http://localhost:'+3019;
+        "https://ezezimalii.azurewebsites.net/";
+        const response = await fetch(baseurl+'/api/v1/auth/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          alert('File uploaded successfully!');
+          return response.json();
+        } else {
+          alert('File upload failed!');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error uploading file!');
+      }
     },
   submitForm() {
   if (this.formData.agree) {
     this.getEmail().then(email => {
       if (email){
             // alert('Posted successfully!');
+            let url = null;
+            this.uploadFile().then((data) => {
               const baseurl = 
               // "http://localhost:"+3019;
               "https://ezezimalii.azurewebsites.net/" 
 
-              // ${object.fundingOpp_ID}
-              // '${object.applicant_email}', ${object.fundingOpp_ID}, '${object.applicant_motivation}', '${object.applicant_documents}'
-
-              this.formData.applicant_documents = "https://sebenzostorage.blob.core.windows.net/cv-storage-001/sebenzo-cv-1e5008.pdf";
+              this.formData.applicant_documents = data.url;
               this.formData.applicant_email = email;
               this.formData.fundingOpp_ID = this.$route.params.id;
 
@@ -85,6 +116,12 @@ methods: {
   }
 })
 .catch(error => console.error('Error:', error));
+            });
+
+              // ${object.fundingOpp_ID}
+              // '${object.applicant_email}', ${object.fundingOpp_ID}, '${object.applicant_motivation}', '${object.applicant_documents}'
+
+
           }
       });
   } else {

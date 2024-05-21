@@ -60,7 +60,9 @@
     methods: {
       async fetchData() {
         try {
-          const baseurl = 'http://localhost:3019';
+          const baseurl = 
+        //   'http://localhost:3019';
+        "https://ezezimalii.azurewebsites.net/";
           const response = await fetch(baseurl + '/api/v1/auth/readFundApps', {
             method: 'POST',
             headers: {
@@ -81,7 +83,9 @@
       },
       async accept(applicant_email,i) {
         try {
-          const baseurl = 'http://localhost:3019';
+          const baseurl = 
+          "https://ezezimalii.azurewebsites.net/";
+        //   'http://localhost:3019';
           const response = await fetch(`${baseurl}/api/v1/auth/updateFundingApp/`, {
             method: 'PUT',
             headers: {
@@ -103,7 +107,9 @@
       },
       async deny(applicant_email, index) {
         try {
-          const baseurl = 'http://localhost:3019';
+          const baseurl = 
+        //   'http://localhost:3019';
+        "https://ezezimalii.azurewebsites.net/";
           const response = await fetch(`${baseurl}/api/v1/auth/updateFundingApp/`, {
             method: 'PUT',
             headers: {

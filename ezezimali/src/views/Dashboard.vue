@@ -1,4 +1,6 @@
 <template>
+
+
     <div class="dashboard">
         
       <!-- <router-link to="/apply-funding-manager">
@@ -32,12 +34,14 @@
   
   <script>
   import { mapGetters } from 'vuex';
-  
+
+
   export default {
     
     data() {
       return {
         fundingOpps: [],
+        selectedFile: null,
         formData: {
           title: '',
           summary: '',
@@ -52,9 +56,12 @@
       ]),
     },
     methods: {
+
       async getEmail(){
         return await this.getUser.username;
       },
+
+
       submitForm() {
         // ... existing code ...
       },

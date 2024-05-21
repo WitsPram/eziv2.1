@@ -4,14 +4,17 @@ const { connectionString } = require('./config');
 
 
 // admin reads all funding applications
-async function readFundApps(userID) {
+async function readFundApps() {
     try {
         // Create a new connection pool
         const pool = new ConnectionPool(connectionString);
         await pool.connect();
 
         console.log("Reading rows from the fundersApps Table...");
-        const resultSet = await pool.request().query(`select * from [fundersApps] where evaluated = 0;`);
+        const resultSet = await pool.request().query(`SELECT F.*, U.name AS name
+        FROM fundersApps AS F
+        JOIN [User] AS U ON F.applicant_email = U.email
+        WHERE F.evaluated = 0;`);
 
         // Close the connection pool
         await pool.close();
@@ -77,6 +80,8 @@ async function updateFundingApp(object) {
 
         console.log("Updating fundersApps!!")
 
+        console.log(object);
+
         // Update the row into the table
         const resultSet = await pool.request().query(`
         UPDATE [fundersApps]
@@ -88,7 +93,7 @@ WHERE applicant_email = '${object.email}';`);
         
         let returnObj = { message: "Failure to Evaluate" };
         
-        if (resultSet.rowsAffected[0] == 1) {
+        if (resultSet.rowsAffected[0] >0) {
             returnObj.message = "Successfully Evaluated and rejected";
             
             

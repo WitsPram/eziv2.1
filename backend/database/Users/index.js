@@ -9,6 +9,8 @@ async function readerUserData(userID) {
         const pool = new ConnectionPool(connectionString);
         await pool.connect();
 
+        console.log(userID)
+
         console.log("Reading rows from the Table...");
 
         // Perform a SELECT query to check if the user exists
@@ -18,6 +20,8 @@ FROM [User]
 WHERE email = '${userID}'
 `);
 let user = null;
+
+
 
 // Check if the query returned no rows
 if (resultSet.recordset.length === 0) {
@@ -67,7 +71,7 @@ async function readAllUsers() {
         // Perform a SELECT query to retrieve all users
         const resultSet = await pool.request().query(`
             SELECT *
-            FROM [User] where disabled = 0;
+            FROM [User] where disabled = 0 and user_type != 'Admin';
         `);
 
         // Close the connection pool
@@ -177,7 +181,8 @@ async function blockUser(email) {
     try {
         // Connect to the database
 
-        const poolConnection = await sql.connect(config);
+        const poolConnection = new ConnectionPool(connectionString);
+        await poolConnection.connect();
 
 
             console.log("Updating!!")
