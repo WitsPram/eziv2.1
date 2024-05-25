@@ -5,10 +5,11 @@
       <h5 class="opp-title">{{ editMode ? editedTitle : opp.title }}</h5>
       <h6>Awarded amount: {{ editMode ? "R"+editedAmount : opp.amount }}</h6>
       <br>
-      <p class="font-normal text-gray-700 dark:text-gray-400">{{ editMode ? editedSummary : opp.summary }}</p>
+      <p class="font-normal text-gray-700 dark:text-gray-400">{{ editMode ? editedDescription : opp.description }}</p>
   
       <br>
     
+      <div v-if="editing">
       <div v-if="!editMode" class="flexRow">
         <button class="download-button" @click="editMode = true; initializeEditData()">Edit</button>
       </div>
@@ -20,8 +21,8 @@
       <input type="text" v-model="editedTitle" id="editedTitle" class="edit-input" placeholder="Enter edited title">
     </div>
     <div class="form-group">
-      <label for="editedSummary" class="form-label">Summary</label>
-      <textarea v-model="editedSummary" id="editedSummary" class="edit-textarea" placeholder="Enter edited summary"></textarea>
+      <label for="editedSummary" class="form-label">Description</label>
+      <textarea v-model="editedDescription" id="editedDescription" class="edit-textarea" placeholder="Enter edited description"></textarea>
     </div>
     <div class="form-group">
       <label for="editedAmount" class="form-label">Amount</label>
@@ -49,33 +50,47 @@
     </div>
   </form>
 </div>
+</div>
+<div v-else>
+
+              <router-link v-if="applicant" :to="'/apply-funding-opportunity/' + opp.id" class="download-button">Apply for Funding
+              </router-link>
+</div>
 
     </div>
   </template>
     
   <script>
   import { mapGetters } from 'vuex';
+
+import toast from '@/components/toasty';
+import axios from 'axios';
+import { baseurl } from '../config/config';
+
   export default {
     props: {
       opp: Object,
+      editing: Boolean,
       userType: String
     },
 
     computed: {
     ...mapGetters([
-      'getUser', 'isAuthenticated', 'getUserType'
+      'getUser'
     ]),},
     data() {
       return {
         editMode: false,
         editedTitle: '',
+        applicant: false,
         editedAmount: '',
         editedType: '',
-        editedSummary: ''
+        editedDescription: ''
       };
     },
-    mounted(){
-        // alert("jdsnfbds#"+this.userType);    
+    async mounted(){
+      const user_type = await this.getUser.user_type;
+      this.applicant = user_type === 'Applicant';
     },
     methods: {
         getImageSrcEdit() {
@@ -96,62 +111,98 @@
       }
     },
       initializeEditData() {
-        // Initialize edited values with the original data when entering edit mode
+
         this.editedTitle = this.opp.title;
-        this.editedSummary = this.opp.summary;
+        this.editedDescription = this.opp.description;
         this.editedType = this.opp.type;
         this.editedAmount = parseInt(this.opp.amount.substring(1));
       },
-      submitChanges(id, amount) {
-        // Logic to submit changes
-        // Overwrite original data with edited values when submitting changes
+      async notify(title, amount){
+
+        const token = await this.getUser.token;
+        const name = await this.getUser.name;
+        const id = await this.getUser.id;
+        
+        axios.post(`${baseurl}/api/v1/notifications`, {
+  "id": id,
+  "adminRequired" : 1,
+  "title": "Assistance Required: Fund Manager Application",
+  "message": `Dear Admin, ${name} would like to update the amount for the opportunity titled ${title} to R${amount}. Please review and approve.`,
+}, {
+  headers: {
+    'Authorization': `${token}`  // Ensure token is correctly formatted
+  }
+}).then(response => {
+  const data = response.data;
+  console.log(data);
+  if (data.message === 'Success') {
+    toast.info('Follow up notification sent to admin');
+  } else if (data.message === 'Failure'){
+          toast.warning('Follow up notification could not be sent to admin');
+
+
+        }else{
+          toast.error('Failed to send a follow up to admin');
+        }
+}).catch(error => {
+  if (error.response && error.response.status === 401) {
+    toast.error('Unauthorized access - please log in again');
+    console.error('Unauthorized access - please log in again');
+  } else {
+    const errorMessage = error.response ? error.response.data.message : error.message;
+    toast.error(`Request failed: ${errorMessage}`);
+    console.error(error);
+  }
+});
+
+      },
+      async submitChanges(id, amount) {
+      const token = await this.getUser.token;
+      const user_type = await this.getUser.user_type;
+
+      // if (user_type==='Applicant') this.applicant = true
+
         let adminRequired = false;
         this.opp.title = this.editedTitle;
-        this.opp.summary = this.editedSummary;
-        if (this.userType==='Admin') {
+        this.opp.description = this.editedDescription;
+        if (user_type==='Admin') {
         this.opp.amount = "R"+this.editedAmount;
        }
 
         if (this.opp.amount !== "R"+this.editedAmount) {
           adminRequired = true;
         }
-        // this.opp.amount = "R"+this.editedAmount;
         this.opp.type = this.editedType;
         this.editMode = false;
 
-       const baseurl = "http://localhost:"+3019;
 
-
-
-       
-       fetch(baseurl+'/api/v1/auth/updateFundingOpp/', {
-  method: 'PUT',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
+        axios.put(`${baseurl}/api/v1/oppotunities`,{
     "title" : this.opp.title,
-    "summary":  this.opp.summary,
+    "description":  this.opp.description,
     "amount": this.opp.amount,
     'type': this.opp.type,
     'id' : id,
-  }
-  ) 
-})
-.then(response => response.json())
-.then(data => {
-    if (data.message !== 'Failure') {
-        alert('Updated successfully!');
-    } else {
-        alert('Failed to post');
-    }
+  } , {
+          headers: {
+            'Authorization': `${token}`
+          }
+        }).then(response => {
+          const data = response.data;
+          if (data.message !== 'Failure') {
+            toast.success('Updated successfully!');
+          } else {
+            toast.error('Failed to post');
+          }
+        }).catch(error => {
+          console.error(error);
+        });
 
-})
-.catch(error => console.error('Error:', error));
+      
 
 if (adminRequired) {
     // Logic to require admin approval
-    alert('Admin has been notified for approval of amount change');
+    toast.info('Admin has been notified for approval of the amount changed');
+    this.notify(this.opp.title, this.editedAmount);
     
 }
 
@@ -174,6 +225,17 @@ input, textarea{
     border-radius: 0.25rem;
 }
 
+  
+  .opp-card {
+    width: 25rem;
+    padding: 1.5rem;
+  }
+
+  .opp-card:hover{
+    transform: translateY(-5px);
+    transition: transform 0.3s;
+  }
+
   .form-group{
     margin-bottom: 1rem;
     display: flex;
@@ -190,6 +252,14 @@ input, textarea{
     text-align: start;
     width: 100%;
     margin-bottom: 10px;
+  }
+
+  @media (max-width: 430px) {
+    .opp-card {
+    width: 20rem;
+    /* margin: 15px; */
+    padding: 1.5rem;
+    }
   }
   </style>
   

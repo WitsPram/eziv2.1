@@ -1,135 +1,70 @@
 <template>
-    <div class="admin-panel">
-      <section>
-        <div class="moop">
-          <!-- Pending Funding Opportunities -->
-          <section class="category-box">
-            <article class="pending-title-box">
-              <h2 class="bold-title">Fund Manager Requests</h2>
-            </article>
-            <div v-if="data.length === 0" class="no-data-box">
-              No Fund Manager Requests
-            </div>
-            <div v-else>
-              <div v-for="(item, index) in data" :key="index" class="card">
-                <h5><strong>{{ item.name }}</strong></h5>
 
-                <br>
-                <p>{{ item.justification }}</p>
+  <AdminPanel :data="enabledUsers" :rejectedData="disabledUsers" />
 
-                <a class="download-button" :href="item.applicant_documents" target="_blank">Download Documents</a>
-                <div class="flexRow">
-                    <button class="verdict2-button" @click="deny(item.applicant_email,index)">Deny</button>
-                    <button class="verdict-button" @click="accept(item.applicant_email, index)">Approve</button>
-
-                </div>
-              </div>
-            </div>
-          </section>
-  
-          <!-- Rejected Funding Opportunities -->
-          <div class="category-box">
-            <section class="rejected-title-box">
-              <h2 class="bold-title">Rejected Fund Manager Requests</h2>
-            </section>
-            <div>
-              <div v-for="(item, index) in rejectedData" :key="index" class="card">
-                <h5><strong>{{ item.applicant_email }}</strong></h5>
-                <p>{{ item.justification }}</p>
-                <p class="bold-status-r">Denied</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </div>
   </template>
   
   <script>
+
+import AdminPanel from '../components/FMAppsColumns.vue';
+import { baseurl } from '../config/config';
+import axios from 'axios';
+import { mapGetters } from 'vuex';
+import toast from '../components/toasty'
+
   export default {
     data() {
       return {
-        data: [],
-        rejectedData: []
+        enabledUsers: [],
+      disabledUsers: []
       };
     },
+    components: { AdminPanel },
     mounted() {
       this.fetchData();
-    },
+      this.checker();
+    },computed: {
+    ...mapGetters([
+      'getUser', 'isAuthenticated'
+    ]),
+  },
     methods: {
       async fetchData() {
-        try {
-          const baseurl = 
-        //   'http://localhost:3019';
-        "https://ezezimalii.azurewebsites.net/";
-          const response = await fetch(baseurl + '/api/v1/auth/readFundApps', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-          });
-  
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-  
-          const data = await response.json();
-          console.log(data);
-          this.data = data;
-        } catch (error) {
-          console.error('Error:', error);
+      const token = await this.getUser.token;
+
+        axios.get(baseurl + '/api/v1/apply/', {
+        headers: {
+          'Authorization': `${token}`
         }
+      }).then(response => {
+        const data = response.data;
+        console.log(data);
+        if (data.message === 'Success') {
+          this.enabledUsers = data.applications
+         
+        } else if (data.message === 'Failure') {
+          toast.info('No Applicants found');
+        } else {
+          toast.error('Failed to fetch Applicants');
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          toast.error('Unauthorized access - please log in again');
+          console.error('Unauthorized access - please log in again');
+        } else {
+          const errorMessage = error.response ? error.response.data.message : error.message;
+          toast.error(`Request failed: ${errorMessage}`);
+          console.error(error);
+        }
+      });
       },
-      async accept(applicant_email,i) {
-        try {
-          const baseurl = 
-          "https://ezezimalii.azurewebsites.net/";
-        //   'http://localhost:3019';
-          const response = await fetch(`${baseurl}/api/v1/auth/updateFundingApp/`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email: applicant_email, verdict: "Approved" })
-          });
-  
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-  
-          alert(`You have accepted ${this.data[i].name}'s application to be a fund manager.`);
-          const item = this.data.splice(i, 1)[0];
-          item.status = 'Accepted';
-        } catch (error) {
-          console.error('Error:', error);
-        }
-      },
-      async deny(applicant_email, index) {
-        try {
-          const baseurl = 
-        //   'http://localhost:3019';
-        "https://ezezimalii.azurewebsites.net/";
-          const response = await fetch(`${baseurl}/api/v1/auth/updateFundingApp/`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email: applicant_email, verdict: "Rejected" })
-          });
-  
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-  
-          alert(`You have denied ${this.data[index].name}'s application to be a fund manager.`);
-          const item = this.data.splice(index, 1)[0];
-          item.status = 'Denied';
-          this.rejectedData.push(item);
-        } catch (error) {
-          console.error('Error:', error);
-        }
+      async checker(){
+      const type = await this.getUser.user_type;
+      if (type !== 'Admin') {
+        this.$router.push('/');
       }
+      // console.log(type);
+    },
     }
   };
   </script>

@@ -1,127 +1,232 @@
 <template>
-    <div class="notifications">
-      <h1>Admin Notifications</h1>
-  
-      <div class="section">
-        <h2>All Notifications</h2>
-        <ul>
-          <li v-for="notification in limitedNotifications" :key="notification.id" class="notification-item">
-            {{ notification.description }}
-          </li>
-        </ul>
-      </div>
-    </div>
-  </template>
-  
-  <script>
+
+  <div class="content">
+  <div class="notifications-container">
+    <ul>
+      <li v-for="notification in notifications" :key="notification.id" class="notification-item">
+        <div class="notification-content">
+          <div class="icon-container">
+            <svg xmlns="http://www.w3.org/2000/svg"
+              class="icon"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="text-container">
+            <h2>{{ notification.title }}</h2>
+            <p>{{ notification.message }}</p>
+          </div>
+        </div>
+        <button @click="removeNotification(notification.id)" class="remove-button">remove</button>
+      </li>
+    </ul>
+  </div>
+</div>
+</template>
+
+<script>
 
 import { mapGetters } from 'vuex';
+import { baseurl } from '../config/config';
+import axios from 'axios';
+import toast from '../components/toasty';
 
-  export default {
-    data() {
-      return {
-        allNotifications: [],
-      };
+
+export default {
+  data() {
+    return {
+      notifications: [],
+    };
+  },
+  created() {
+    this.fetchData();
+  },
+  computed: {
+
+    ...mapGetters([
+      'getUser'
+    ]),
+
+  },
+  methods: {
+    async removeNotification(id) {
+      const token = await this.getUser.token;
+      axios.put(`${baseurl}/api/v1/notifications/`,{
+                "id": id,
+            }, {
+                headers: {
+                    'Authorization': `${token}`
+                }
+            }).then(response => {
+        const data = response.data;
+
+        if (data.message === 'Success') {
+          toast.success('Notification has been removed.');
+          
+this.notifications = this.notifications.filter(notification => notification.id !== id);
+  
+
+        } else if (data.message === "Failure") {
+          toast.warning('Notification could not be removed.');
+        } else {
+          toast.error('Notification could not be removed.');
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          toast.error('Unauthorized access - please log in again');
+          console.error('Unauthorized access - please log in again');
+        } else {
+          const errorMessage = error.response ? error.response.data.message : error.message;
+          toast.error(`Request failed: ${errorMessage}`);
+          console.error(error);
+        }
+      });
+
     },
-    created() {
-      this.fetchNotifications();
-    },
-    computed: {
-      limitedNotifications() {
-        return this.allNotifications.slice(0, 10);
-      },
-      ...mapGetters([
-        'getUser', 'isAuthenticated'
-      ]),
-    
-    },
-    methods: {
-        async getEmail(){
-        return await this.getUser.username;
-      },
-      async fetchNotifications() {
-        const email = await this.getEmail();
-        const baseurl = 
-        // 'http://localhost:'+3019;
-        "https://ezezimalii.azurewebsites.net/";
-        const response = await fetch(baseurl+'/api/v1/auth/readNotifications/'+email, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        });
-        const data = await response.json();
+    async fetchData() {
+      const token = await this.getUser.token;
+      const id = await this.getUser.id;
+
+      console.log(id);
+      const user_type = await this.getUser.user_type;
+      const url = user_type === 'Admin'? `${baseurl}/api/v1/notifications/admin`: `${baseurl}/api/v1/notifications/`+id
+
+
+      // console.log(user_type,url);
+
+      console.log(url)
+
+      axios.get(url, {
+        headers: {
+          'Authorization': `${token}`
+        }
+      }).then(response => {
+        const data = response.data;
         console.log(data);
-        this.allNotifications = data;
-      }
+        if (data.message === 'Success') {
+          toast.success('Notifications fetched successfully');
+          console.log(data.notifications);
+
+          this.notifications = data.notifications;
+
+          
+
+        } else if (data.message === 'Failure') {
+          toast.info('No notifications found');
+        } else {
+          toast.error('Failed to fetch notifications');
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          toast.error('Unauthorized access - please log in again');
+          console.error('Unauthorized access - please log in again');
+        } else {
+          const errorMessage = error.response ? error.response.data.message : error.message;
+          toast.error(`Request failed: ${errorMessage}`);
+          console.error(error);
+        }
+      });
     },
-  };
-  </script>
-  
-  <style scoped>
-  body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .notifications {
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    background-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-  }
-  
-  .section {
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    background: #fafafa;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-  }
-  
-  ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  li {
-    margin-bottom: 10px;
-    display: flex;
-    flex-direction: column;
-    background: #ffffff;
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  
-  li:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-  
-  h1 {
-    text-align: center;
-    font-size: 28px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
-  h2 {
-    font-size: 22px;
-    font-weight: bold;
-    color: #555;
-    margin-bottom: 15px;
-  }
-  </style>
+
+  },
+};
+</script>
+
+<style scoped>
+.notifications-container {
+  width: 100%;
+  max-width: 750px;
+  /* height: max-; */
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.notification-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  padding: 15px;
+  margin-bottom: 10px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+.content {
+  height: 80vh;
+}
+.notification-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+}
+
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border: 1px solid #cfe2ff;
+  background-color: #e7f3ff;
+  border-radius: 12px;
+  margin-right: 16px;
+}
+
+.icon {
+  width: 32px;
+  height: 32px;
+  color: #3b82f6;
+}
+
+.text-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.text-container h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.text-container p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.remove-button {
+  background-color: #ef4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  padding: 1.2rem 1.5rem;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.remove-button:hover {
+  background-color: #dc2626;
+}
+</style>

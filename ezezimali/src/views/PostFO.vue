@@ -6,9 +6,7 @@
   
         <label for="title" class="input-labels">Title</label>
         <input type="text" id="title" class="input" v-model="formData.title" placeholder="Students Employment Grant" required />
-  
-        <label for="summary" class="input-labels">Summary</label>
-        <input type="text" id="summary" class="input" v-model="formData.summary" required placeholder="Build a foundation..." />
+
 
         <label for="amount" class="input-labels">Amount</label>
         <input type="number" id="amount" class="input" v-model="formData.amount" required placeholder="R1000" />
@@ -28,7 +26,7 @@
             <input type="radio" name="type" value="Business" v-model="formData.type"> Business </label>
 
             <label class="radio-label flexRow">
-            <input type="radio" name="type" value="Event" v-model="formData.type"> Event </label>
+            <input type="radio" name="type" value="Events" v-model="formData.type"> Events </label>
 
 </div>
   
@@ -48,16 +46,20 @@
   
   <script>
   import { mapGetters } from 'vuex';
+import { baseurl } from '../config/config';
+import axios from 'axios';
+
+import toast from '../components/toasty';
+
   export default {
     data() {
       return {
         formData: {
       title: '',
-      summary: '',
+      description: '',
       amount: '',
       end_date: '',
       type: 'Educational', 
-      description: '',
       agree: false
     }
       };
@@ -66,56 +68,100 @@
       'getUser'
     ]),
   },
-    methods: {    async getEmail(){
-      return await this.getUser.username;
-    },
+  mounted() {
+    this.checker();
+  },
+    methods: {  
+      async checker(){
+      const type = await this.getUser.user_type;
+      if (type !== 'Fund Manager') {
+        this.$router.push('/');
+      }
+      // console.log(type);
+    },  
+    async notify(){
+      const token = await this.getUser.token;
+
+      const name = await this.getUser.username;
+      
+      axios.post(`${baseurl}/api/v1/notifications`, {
+  // "id": id,
+  "adminRequired" : 1,
+  "title": "New Funding Opportunity has been posted",
+  "message": `Dear Admin, ${name} has posted a new funding opportunity.`,
+}, {
+  headers: {
+    'Authorization': `${token}`  // Ensure token is correctly formatted
+  }
+}).then(response => {
+  const data = response.data;
+  console.log(data);
+  if (data.message === 'Success') {
+    toast.info('Admin has been notified of the new funding opportunity');
+  } else if (data.message === 'Failure'){
+          toast.warning('Admin could not be notified of the new funding opportunity');
 
 
-      submitForm() {
-        // Output the form data
-        // console.log('Form data:', this.formData.agree);
+        }else{
+          toast.error('Failed to notify admin of the new funding opportunity');
+        }
+}).catch(error => {
+  if (error.response && error.response.status === 401) {
+    toast.error('Unauthorized access - please log in again');
+    console.error('Unauthorized access - please log in again');
+  } else {
+    const errorMessage = error.response ? error.response.data.message : error.message;
+    toast.error(`Request failed: ${errorMessage}`);
+    console.error(error);
+  }
+});
 
-        this.getEmail().then(email => {
-        if (email) {
-            // alert('Posted successfully!');
+    }
+    ,
+      async submitForm() {
+        if (this.formData.agree) {
 
             const dateObject = new Date(this.formData.end_date);
             this.formData.end_date = dateObject.toISOString();
 
-            this.formData.fund_manager_email = email;
+            this.formData.fk_tenant_id = await this.getUser.id;
 
 
             this.formData.amount = 'R'+this.formData.amount;
 
-        console.log(this.formData)
+            const token = await this.getUser.token;
+        
+        axios.post(baseurl + '/api/v1/oppotunities/',this.formData, {
+                headers: {
+                    'Authorization': `${token}`
+                }
+            }).then(response => {
+        const data = response.data;
 
-        const baseurl = 
-        // 'http://localhost:'+3019;
-        // process.env.PORT ?
-        "https://ezezimalii.azurewebsites.net/"  
+        if (data.message === 'Success') {
+          toast.success('Application submitted successfully.');
 
-fetch(baseurl+'/api/v1/auth/insertFundingOpp/', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(this.formData) 
-})
-.then(response => response.json())
-.then(data => {
-    if (data.message !== 'Failure') {
-        alert(data.message);
-    } else {
-        alert('Failed to post');
+          this.notify();
+
+        } else if (data.message === "Failure") {
+          toast.warning("Previous application already present.");
+        } else {
+          toast.error("Application could not be submitted.");
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          toast.error('Unauthorized access - please log in again');
+          console.error('Unauthorized access - please log in again');
+        } else {
+          const errorMessage = error.response ? error.response.data.message : error.message;
+          toast.error(`Request failed: ${errorMessage}`);
+          console.error(error);
+        }
+      });
+
+    }else{
+        toast.error('Please agree to the terms and conditions');
     }
-})
-.catch(error => console.error('Error:', error));
-      }
-    }).catch(error => {
-        console.error('Error fetching email:', error);
-        alert("Please Sign in");
-    });
-
      
     
     }
@@ -144,7 +190,8 @@ input{
 
 .radio-label input[type="radio"] {
   margin-right: 5px; 
-  width: 5px;
+  width: 2px;
+  border-radius: 100%;
 }
 
 
@@ -229,7 +276,19 @@ form{
 
 #form-container {
     width: 100%;
-    margin: 8rem 0;
+    padding: 1rem;
     height: 80vh;
+}
+
+@media (max-width: 400px) {
+    .radio-group{
+        flex-direction: column;
+    }
+
+    .flexRow{
+      margin: 0;
+    }
+
+    
 }
 </style>

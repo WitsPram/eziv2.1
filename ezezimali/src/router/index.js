@@ -8,7 +8,9 @@ import Dashboard from '../views/Dashboard.vue'
 import FMReqs from '../views/FMReqs.vue'
 import Reports from '../views/Reports.vue'
 import Notification from '../views/Notifications.vue'
-import block from '../views/Block.vue'  
+import admin from '../views/admin.vue'  
+import updateProfile from '../views/updateProfile.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,14 +31,19 @@ const router = createRouter({
       component: Notification
     },
     {
-      path: '/blockUser',
-      name: 'block',
-      component: block
+      path: '/admin',
+      name: 'admin',
+      component: admin
     },
     {
       path: '/funding-manager-applications',
       name: 'funding-manager-applications',
       component: FMReqs
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: updateProfile
     },
     {
       path: '/view-funding-oppurtunities',
@@ -61,12 +68,11 @@ const router = createRouter({
     {
       path: '/submit-funding-oppurtunity',
       name: 'submit-funding-oppurtunity',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: PostFO
     }
   ]
 })
+
+
 
 export default router

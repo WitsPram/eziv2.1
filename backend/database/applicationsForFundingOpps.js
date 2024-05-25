@@ -11,7 +11,7 @@ const { v4: uuidv4 } = require('uuid');
 const AZURE_STORAGE_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=ezeziblobstorage;AccountKey=v6RC6oOP+Ug0YZ7o0nzUfi6XKo1qYol/Cl8fkXvYotxo83JTSSmbyOXyvJWwXBJW1Cyhmuc1y/s6+AStOsHNQw==;EndpointSuffix=core.windows.net";
 const CONTAINER_NAME = 'ezeziblobstorage'; // replace with your container name
 
-async function readapplicationsForFundingOpps (email) {
+async function readapplicationsForFundingOpps (fk_tenant_id) {
     const pool = new ConnectionPool(connectionString);
     try {
         // Create a new connection pool
@@ -19,18 +19,27 @@ async function readapplicationsForFundingOpps (email) {
 
         console.log("Reading rows from the applicationsForFundingOpps Table...");
         const resultSet = await pool.request().query(`
-        SELECT A.*, U.name
+        SELECT A.*, U.username
         FROM applicationsForFundingOpps A
         JOIN funding_opportunities F ON A.fundingOpp_ID = F.id
-        JOIN [User] U ON A.applicant_email = U.email
-        WHERE F.fund_manager_email = '${email}';
+        JOIN [User] U ON A.fk_tenant_id = U.tenant_id
+        WHERE F.fk_tenant_id = '${fk_tenant_id}';
         
         `);
 
         // Close the connection pool
         await pool.close();
 
-        return resultSet.recordset;
+        console.log(resultSet.recordset);   
+
+        let returnObj = { message: "Failure" };
+
+        if (resultSet.recordset.length !== 0) {
+            returnObj.applications = resultSet.recordset;
+            returnObj.message = "Success";
+        }
+
+        return returnObj;
     } catch (err) {
         await pool.close();
         console.error(err.message);
@@ -46,16 +55,20 @@ async function insertApplicationsForFundingOpps(object) {
 
         console.log("Inserting data into applicationsForFundingOpps...");
 
+        console.log(object);
+
         // Insert the row into the table
         const resultSet = await pool.request().query(`
-        INSERT INTO applicationsForFundingOpps (applicant_email, fundingOpp_ID, applicant_motivation, applicant_documents)
-SELECT '${object.applicant_email}', ${object.fundingOpp_ID}, '${object.applicant_motivation}', '${object.applicant_documents}'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM applicationsForFundingOpps
-    WHERE applicant_email = '${object.applicant_email}' AND fundingOpp_ID = ${object.fundingOpp_ID}
-);
-
+        INSERT INTO applicationsForFundingOpps (fk_tenant_id, fundingOpp_ID, applicant_motivation, applicant_documents, created_at, status)
+        SELECT * FROM (SELECT '${object.fk_tenant_id}' AS fk_tenant_id, 
+                              '${object.fundingOpp_ID}' AS fundingOpp_ID, 
+                              '${object.applicant_motivation}' AS applicant_motivation, 
+                              '${object.applicant_documents}' AS applicant_documents, GETDATE() AS created_at, 
+                              'Pending' AS status) AS tmp
+        WHERE NOT EXISTS (
+            SELECT 1 FROM applicationsForFundingOpps WHERE fk_tenant_id = tmp.fk_tenant_id
+        );
+        
         `);
 
         // Close the connection pool
@@ -87,7 +100,7 @@ async function updateApplicationsForFundingOpps(object) {
         // Insert the row into the table
         const resultSet = await pool.request().query(`
         UPDATE applicationsForFundingOpps
-        SET status = '${object.status}'
+        SET status = '${object.verdict}', created_at = GETDATE()
         WHERE id = ${object.id};
         `);
 

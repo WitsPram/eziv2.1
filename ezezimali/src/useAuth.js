@@ -1,6 +1,8 @@
 import {ref }  from 'vue'
 import { myMSALObj, state } from './authService'
 import store from './store';
+import { baseurl } from './config/config';
+import axios from 'axios';
 // import { useAuthStore } from './stores/counter'
 
 // const { isAuthenticated, user } = useAuthStore();
@@ -44,10 +46,37 @@ export function useAuth() {
             state.isAuthenticated = myMSALObj.getAllAccounts().length > 0;
             state.user = myMSALObj.getAllAccounts()[0];
 
-            store.commit('SET_USER', state.user);
-            console.log('Redirect successful', store.getters.isAuthenticated, store.getters.getUser);
+            async function fetchData() {
+                try {
+                    const id = myMSALObj.getAllAccounts()[0].localAccountId;
+                    const name = myMSALObj.getAllAccounts()[0].name;
+              
+                  // Modify the axios call to include the token in the request headers
+                  const response = await axios.get(`${baseurl}/api/v1/auth`, {
+                    params: {
+                      id: id,
+                      name: name
+                    }
+                  });
 
-            return myMSALObj.getAllAccounts()[0].username;  
+                  response.data.id = id;
+              
+                  console.log(response.data); 
+
+                    store.commit('SET_USER', response.data);
+                } catch (error) {
+                  console.error('Error fetching data:', error.response.data.message);
+                }
+              }
+              
+              await fetchData();
+
+            // store.commit('SET_USER', state.user);
+            console.log('Redirect successful', store.getters.isAuthenticated, store.getters.getUser );
+
+            return store.getters.getUser
+
+            // return myMSALObj.getAllAccounts()[0].username;  
 
 
 

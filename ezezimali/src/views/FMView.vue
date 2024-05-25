@@ -11,14 +11,14 @@
         </div>
         <div v-else>
           <div v-for="(item, index) in pendingData" :key="index" class="card">
-            <h5><strong>{{ item.name }}</strong></h5>
+            <h5><strong>{{ item.username }}</strong></h5>
             <p>{{ item.applicant_motivation }}</p>
             <!-- <a class="download-button" :href="item.applicant_documents">Download Documents</a> -->
-            <a class="download-button btn" :href="item.applicant_documents" target="_blank" @click.prevent="downloadDocument">Download Documents</a>
+            <a class="download-button btn" :href="item.applicant_documents" target="_blank" @click.prevent="downloadDocument(item.applicant_documents)">Download Documents</a>
 
             <div class="actionbtns">
-              <button class="verdict-button btn" @click="accept(item.id, index)">Accept</button>
-              <button class="verdict2-button btn" @click="deny(item.id, index)">Deny</button>
+              <button class="verdict2-button btn" @click="verdict(item.id, index,'Rejected')">Deny</button>
+              <button class="verdict-button btn" @click="verdict(item.id, index,'Accepted')">Accept</button>
 
             </div>
           </div>
@@ -35,8 +35,7 @@
         </div>
         <div v-else>
           <div v-for="(item, index) in acceptedData" :key="index" class="card">
-            <h5><strong>{{ item.name }}</strong></h5>
-            <p>{{ item.applicant_motivation }}</p>
+            <h5><strong>{{ item.username }}</strong></h5>
             <!-- <a class="download-button" :href="item.applicant_documents">Download Documents</a> -->
             <p class="bold-status-a">Accepted</p>
           </div>
@@ -53,8 +52,7 @@
         </div>
         <div v-else>
           <div v-for="(item, index) in rejectedData" :key="index" class="card">
-            <h5><strong>{{ item.name }}</strong></h5>
-            <p>{{ item.applicant_motivation }}</p>
+            <h5><strong>{{ item.username }}</strong></h5>
             <p class="bold-status-r">Rejected</p>
           </div>
         </div>
@@ -65,10 +63,12 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import axios from 'axios';
+import toast from '@/components/toasty';
+import { baseurl } from '../config/config';
+
+
 export default {
-  mounted() {
-    this.fetchData();
-  },
   data() {
     return {
       data: [],
@@ -81,101 +81,153 @@ export default {
     ...mapGetters([
       'getUser', 'isAuthenticated'
     ]),
+  },  mounted() {
+    this.checker();
+    this.fetchData();
   },
   methods: {
-    async getEmail(){
-      return await this.getUser.username;
-    },
+
     async fetchData() {
-      try {
 
-        const email = await this.getEmail();  
-        const baseurl = 
-        "https://ezezimalii.azurewebsites.net/"
-        // 'http://localhost:3019';
-        const response = await fetch(baseurl + '/api/v1/auth/getApplicationsForFundingOpps/'+email, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        });
+      const token = await this.getUser.token;
+      const id = await this.getUser.id;
+
+      // console.log(token);
+      // console.log(id);
+
+axios.get(baseurl + '/api/v1/applications/'+id, {
+headers: {
+  'Authorization': `${token}`
+}
+}).then(response => {
+const data = response.data;
+console.log(data);
+if (data.message === 'Success') {
+
+  console.log(data.applications);
+
+  this.pendingData = data.applications.filter(item => item.status === 'Pending');
+        this.acceptedData = data.applications.filter(item => item.status === 'Accepted');
+        this.rejectedData = data.applications.filter(item => item.status === 'Rejected');
+
+        console.log(this.pendingData);
+        console.log(this.acceptedData);
+        console.log(this.rejectedData);
+ 
+} else if (data.message === 'Failure') {
+  toast.info('No Applicants found');
+} else {
+  toast.error('Failed to fetch Applicants');
+}
+}).catch(error => {
+if (error.response && error.response.status === 401) {
+  toast.error('Unauthorized access - please log in again');
+  console.error('Unauthorized access - please log in again');
+} else {
+  const errorMessage = error.response ? error.response.data.message : error.message;
+  toast.error(`Request failed: ${errorMessage}`);
+  console.error(error);
+}
+});
+
+    },    async checker(){
+      const type = await this.getUser.user_type;
+      if (type !== 'Fund Manager') {
+        this.$router.push('/');
+      }
+      // console.log(type);
+    },
+    async notify(id,title, message){
+
+const token = await this.getUser.token;
+
+axios.post(`${baseurl}/api/v1/notifications`, {
+"id": id,
+"adminRequired" : 0,
+"title": title,
+"message": message,
+}, {
+headers: {
+'Authorization': `${token}`  // Ensure token is correctly formatted
+}
+}).then(response => {
+const data = response.data;
+console.log(data);
+if (data.message === 'Success') {
+toast.info('Notification sent to Applicant');
+} else if (data.message === 'Failure'){
+  toast.warning('Notification could not be sent to Applicant');
+
+
+}else{
+  toast.error('Failed to notify Applicant');
+}
+}).catch(error => {
+if (error.response && error.response.status === 401) {
+toast.error('Unauthorized access - please log in again');
+console.error('Unauthorized access - please log in again');
+} else {
+const errorMessage = error.response ? error.response.data.message : error.message;
+toast.error(`Request failed: ${errorMessage}`);
+console.error(error);
+}
+});
+
+},
+    async verdict(id, index, verdict) {
+      const token = await this.getUser.token;
         
+        axios.put(baseurl + '/api/v1/applications/',{
+                "id": id,
+                "verdict": verdict
+            }, {
+                headers: {
+                    'Authorization': `${token}`
+                }
+            }).then(response => {
+        const data = response.data;
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
+        if (data.message === 'Success') {
+            if (verdict === 'Accepted') {
+                toast.success(this.pendingData[index].username +' has been approved.');
+                const item = this.pendingData.splice(index, 1)[0];
+                item.status = 'Accepted';
+                this.acceptedData.push(item);
+                this.notify(item.fk_tenant_id, 'Your Application for the Funding Oppotunity has been approved', 'Congratulations, your application has been approved. Fund Manager will contact you soon.');
 
-        const data = await response.json();
-        console.log(data);
-        this.data = data;
 
-        this.pendingData = data.filter(item => item.status === 'pending');
-        this.acceptedData = data.filter(item => item.status === 'Accepted');
-        this.rejectedData = data.filter(item => item.status === 'Rejected');
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    },
-    async accept(id, index) {
-      try {
-        const baseurl = 
-        "https://ezezimalii.azurewebsites.net/"
-        // 'http://localhost:3019';
-        const response = await fetch(`${baseurl}/api/v1/auth/acceptOrDenyApplicant/`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ id: id, status: 'Accepted' })
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const result = await response.text();
-        // alert(result;
-
-        alert(`You have accepted ${this.pendingData[index].name}'s application.`);
-
-        const item = this.pendingData.splice(index, 1)[0];
-        item.status = 'Accepted';
-        this.acceptedData.push(item);
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    },
-    async deny(id, index) {
-      try {
-        const baseurl = 
-        "https://ezezimalii.azurewebsites.net/"
-        // 'http://localhost:3019';
-        const response = await fetch(`${baseurl}/api/v1/auth/acceptOrDenyApplicant/`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ id: id, status: 'Rejected' })
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const result = await response.text();
-        // alert(result);
-        alert(`You have rejected ${this.pendingData[index].name}'s application.`);
-
-        const item = this.pendingData.splice(index, 1)[0];
+            } else {
+                toast.success(this.pendingData[index].username +' has been denied.');
+                const item = this.pendingData.splice(index, 1)[0];
         item.status = 'Rejected';
         this.rejectedData.push(item);
-      } catch (error) {
-        console.error('Error:', error);
-      }
+        this.notify(item.fk_tenant_id, 'Your Application for the Funding Oppotunity has been denied', 'Unfortunately, your application has been denied. Please try again next time.');
+            }
+          
+        
+
+        } else if (data.message === "Failure") {
+          toast.warning(this.pendingData[index].username +' could not be Updated.');
+        } else {
+          toast.error(this.pendingData[index].username +' could not be Updated.');
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          toast.error('Unauthorized access - please log in again');
+          console.error('Unauthorized access - please log in again');
+        } else {
+          const errorMessage = error.response ? error.response.data.message : error.message;
+          toast.error(`Request failed: ${errorMessage}`);
+          console.error(error);
+        }
+      });
+
     },
-    downloadDocument() {
+
+    downloadDocument(pdf) {
       //downloading pdf
-      window.location.href = 'https://sebenzostorage.blob.core.windows.net/cv-storage-001/sebenzo-cv-1e5008.pdf';
+      window.open(pdf);
+      // window.location.href = 'https://sebenzostorage.blob.core.windows.net/cv-storage-001/sebenzo-cv-1e5008.pdf';
     }
   }
 };
@@ -237,12 +289,12 @@ export default {
 
 .bold-status-a {
   font-weight: bold;
-  color: #abe6b9;
+  color: #08d839;
 }
 
 .bold-status-r {
   font-weight: bold;
-  color: #d39399
+  color: #e1162a
 }
 
 .no-data-box {

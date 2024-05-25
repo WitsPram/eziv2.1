@@ -1,279 +1,230 @@
 <template>
-    <div class="reporting">
-      <h1>Fund Reporting</h1>
-  
-      <div class="stats-section">
-        <h2>Statistics</h2>
-        <div class="stats">
-          <div class="stat-item total-funds-used" id="fundsUsed">
-            <h3>Your Managed Funds</h3>
-            <ul>
-              <li v-for="(amount, title) in fundsUsedData" :key="title">{{ title }}: R{{ amount }}</li>
-              <li class="total-amount" :key="'total'">Total: R{{ totalFundsUsed }}</li>
-            </ul>
-          </div>
-          <div class="stat-item" id="acceptedUsers">
-            <h3>Search for applicant</h3>
-            <input type="text" v-model="searchTerm" placeholder="Enter user" />
-            <button @click="searchUser">Search</button>      
-            <ul>
-              Funds Applied To: {{ entryCount }}<br>
-              <br>
-              <li v-for="fundName in matchedFundNames" :key="fundName">{{ fundName }}</li>
-            </ul>
-          </div>
-          <div class="stat-item" id="awaitingFunds">
-            <h3>Fund Applications Awaiting Approval/Rejection</h3>
-            <ul>
-              <li>Work in progress...</li>
-              <li v-for="(count, fund) in awaitingApproval" :key="fund">{{ fund }}: {{ count }}</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </template>
-  
-  <script>
+  <div class="flexCenter">
+    <CanvasJSChart :options="options" :style="styleOptions" @chart-ref="chart1Instance" />
+    <CanvasJSChart :options="options2" :style="styleOptions" @chart-ref="chart2Instance" />
+    <CanvasJSChart :options="options3" :style="styleOptions" @chart-ref="chart3Instance" />
+    <CanvasJSChart :options="options4" :style="styleOptions" @chart-ref="chart4Instance" />
+
+  </div>
+
+</template>
+
+<script>
 
 import { mapGetters } from 'vuex';
+import toast from '../components/toasty';
+import { baseurl } from '../config/config';
+import axios from 'axios';
 
-  export default {
+export default {
 
 
-    mounted() {
-      this.fetchData();
-    },
-    data() {
-      return {
-        fundsUsedData: {},
-        acceptedCounts: {},
-        awaitingApproval: {},
-        totalFundsUsed: 0,
-        additionalData: {},
-        entryCount: 0, // New data property for the count of entries
-        matchedFundNames: [], // New data property for matched fund names
-        searchTerm: '', // New data property for search term
-      };
-    },
-    computed: {
-      ...mapGetters([
-        'getUser', 'isAuthenticated'
-      ]),
-    },
-    methods: {
-        async getEmail(){
-        return await this.getUser.username;
+  mounted() {
+    this.fetchData();
+  },
+  data() {
+    return {
+      fundsUsedData: {},
+      acceptedCounts: {},
+      chart1: null,
+      chart2: null,
+      chart3: null,
+      chart4: null,
+      options: {
+        animationEnabled: true,
+        exportEnabled: true,
+        theme: "light2",
+        title:{
+          text: "Funds consumed over time"
+        },
+        axisY: {
+          title: "Amount",
+        },
+        data: [{
+          type: "line",color: "#1DA1F2",
+          // yValueFormatString: "₹##,##,##0.## crores",
+          dataPoints:[]
+        }]
       },
-      async fetchData() {
-        // alert('Fetching data...');
-        const email = await this.getEmail();
-        const baseurl = 
-        // 'http://localhost:'+3019;
-        "https://ezezimalii.azurewebsites.net/";
-        const response = await fetch(baseurl+'/api/v1/auth/readFundOpps/'+email, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
+      styleOptions: {
+        width: window.innerWidth > 600 ? "50%" : "100%",
+        height: "360px"
+      },
+      options2: {
+          theme: "light2",
+          animationEnabled: true,
+        exportEnabled: true,
+          title:{
+            text: "Funds consumed (%)"
           },
-        });
-        const data = await response.json();
-        this.processData(data);
-
+          data: [{
+            type: "pie",
+            indexLabel: "{label} (#percent%)",
+            yValueFormatString: "#,##0",
+            toolTipContent: "<span style='\"'color: {color};'\"'>{label}</span> {y}(#percent%)",
+            dataPoints: []
+          }]
+        },
+        options3: {
+        animationEnabled: true,
+        theme: "light2",
+        exportEnabled: true,
+        title:{
+          text: "Types of Funding Opportunities"
+        },
+        data: [{
+          type: "column",
+          dataPoints: []
+        }]
       },
-      processData(data) {
-        let fundsUsedData = {};
-        let totalFundsUsed = 0;
-        this.fundIds = [];
-        this.fundNames = [];
-  
-        // Extract the total funds used data
-        data.forEach(item => {
-          // Remove non-numeric characters and convert to integer
-          const amount = parseInt(item.amount.replace(/[^0-9]/g, ''), 10);
-          fundsUsedData[item.title] = amount;
-          totalFundsUsed += amount;
-          this.fundIds.push(item.id);
-          this.fundNames.push(item.title);
-        });
-  
-        this.fundsUsedData = fundsUsedData;
-        this.totalFundsUsed = totalFundsUsed;
-  
-        // Example data for acceptedCounts and awaitingApproval
-        this.acceptedCounts = {
-          "Fund A": 10,
-          "Fund B": 5
-        };
-  
-        this.awaitingApproval = {
-          "Fund A": 2,
-          "Fund B": 3
-        };
-      },
-      async fetchAdditionalData(id) {
-        try {
-          const baseurl = 
-          "https://ezezimalii.azurewebsites.net/";
-        //   'http://localhost:3019';
-          const response = await fetch(`${baseurl}/api/v1/auth/getApplicationsForFundingOpps/${id}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-          });
-  
-          if (!response.ok) {
-            throw new Error(`Network response was not ok: ${response.statusText}`);
-          }
-  
-          const data = await response.json();
-          this.additionalData = data;
-          this.entryCount = data.length;
-  
-          // Extract appIDs and find matching fund names
-          const appIDs = data.map(item => item.fundingOpp_ID);
-          this.matchedFundNames = this.fundIds
-            .map((id, index) => appIDs.includes(id) ? this.fundNames[index] : null)
-            .filter(name => name !== null);
-  
-          console.log(data);
-        } catch (error) {
-          console.error('Error fetching additional data:', error);
-        }
-      },
-      searchUser() {
-        if (this.searchTerm) {
-          this.fetchAdditionalData(this.searchTerm);
-        }
+      options4: {
+          theme: "light2",
+          animationEnabled: true,
+        exportEnabled: true,
+          title:{
+            text: "Accepted vs Rejected Applicants"
+          },
+          data: [{
+            type: "pie",
+            indexLabel: "{label} (#percent%)",
+            yValueFormatString: "#,##0",
+            toolTipContent: "<span style='\"'color: {color};'\"'>{label}</span> {y}(#percent%)",
+            dataPoints: []
+          }]
+        },
+    };
+  },
+  computed: {
+    ...mapGetters([
+      'getUser', 'isAuthenticated'
+    ]),
+  },
+  mounted() {
+    this.checker();
+    this.fetchData();
+  },
+  methods: {
+    chart2Instance(chart2) {
+      this.chart2 = chart2;
+    },
+    chart3Instance(chart3) {
+      this.chart3 = chart3;
+    },
+    chart4Instance(chart4) {
+      this.chart4 = chart4;
+    },
+    chart1Instance(chart1) {
+      this.chart1 = chart1;
+    },
+    async checker(){
+      const type = await this.getUser.user_type;
+      if (type !== 'Fund Manager') {
+        this.$router.push('/');
       }
-    }
-  };
-  </script>
-  
-  <style scoped>
-  /* Updated styling for Total Funds Used */
-  .total-funds-used {
-    background: linear-gradient(135deg, #ffd54f 0%, #ffa000 100%);
-    color: #fff; /* Text color */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Box shadow */
+      // console.log(type);
+    },
+    parseAmount(amountString) {
+    // Remove the 'R' and convert the rest to a number
+    return parseInt(amountString.replace("R", ""));
+},
+async fetchData() {
+      const token = await this.getUser.token;
+      const id = await this.getUser.id;
+
+        axios.get(baseurl + '/api/v1/reports/'+id, {
+        headers: {
+          'Authorization': `${token}`
+        }
+      }).then(response => {
+        const data = response.data;
+        console.log(data);
+        if (data.message === 'Success') {
+
+          const consumed = data.consumed;
+          const total = data.total;
+          const report = data.report;
+
+          const m = report.map(function(entry) {
+    return {
+      label: entry.date,
+      y: parseFloat(entry.amount.replace("R", ""))
+
+    };
+});
+
+// m.push({ label : "25th May", y: 2500})
+// m.push({ label : "26th May", y: 3000})
+
+this.options.data[0].dataPoints = m;
+
+          this.chart1.render();
+          toast.info('You have consumed R' + consumed + ' out of R' + total); 
+
+          this.options2.data[0].dataPoints = [
+            { label: "Consumed", y: consumed, color: "#3fa0dc" },
+            { label: "Remaining", y: total - consumed, color: "#39cb39"  }
+          ];
+
+          this.chart2.render();
+
+          const EducationalCount = data.EducationalCount;
+          const BusinessCount = data.BusinessCount;
+          const EventsCount = data.EventsCount;
+
+          console.log(EducationalCount, BusinessCount, EventsCount)
+
+          this.options3.data[0].dataPoints = [
+            { label: "Educational", y: EducationalCount, color: "#39cb39" },
+            { label: "Business", y: BusinessCount, color: "#0fa20f"  },
+            { label: "Events", y: EventsCount, color: "#3fa0dc"  }
+          ];
+
+          this.chart3.render();
+
+          const AcceptedCount = data.AcceptedCount;
+          const RejectedCount = data.RejectedCount;
+
+          this.options4.data[0].dataPoints = [
+            { label: "Accepted", y: AcceptedCount, color: "#39cb39" },
+            { label: "Rejected", y: RejectedCount, color: "#3fa0dc"  }
+          ];
+
+          this.chart4.render();
+          
+          
+        } else if (data.message === 'Failure') {
+          toast.info('Insufficient data to display a report');
+        } else {
+          toast.error('Failed to fetch funds');
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          toast.error('Unauthorized access - please log in again');
+          console.error('Unauthorized access - please log in again');
+        } else {
+          const errorMessage = error.response ? error.response.data.message : error.message;
+          toast.error(`Request failed: ${errorMessage}`);
+          console.error(error);
+        }
+      });
+      }
   }
-  
-  body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .reporting {
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    background: #f4f4f9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-    animation: fadeIn 1s ease-in-out;
-  }
-  
-  .stats-section {
-    margin-top: 20px;
-  }
-  
-  .stats {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .stat-item {
-    background: #ffffff;
-    
-    border: 1px solid #d0d0d0;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
-  
-  .stat-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  h1 {
-    text-align: center;
-    font-size: 32px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 20px;
-    text-decoration: underline;
-  }
-  input {
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    width: 40%;
-    color: black;
-  }
-  h2 {
-    font-size: 26px;
-    font-weight: bold;
-    color: black;
-    margin-bottom: 15px;
-  }
-  
-  h3 {
-    font-size: 20px;
-    font-weight: bold;
-    color: #4caf50;
-    margin-bottom: 10px;
-  }
-  
-  ul {
-    list-style-type: none;
-    padding: 0;
-    color: black
-  }
-  
-  li {
-    font-size: 16px;
-    margin-bottom: 5px;
-    color: black;
-  }
-  
-  #fundsUsed {
-    background: #bdffce;
-    color: #fff;
-  }
-  #acceptedUsers {
-    background: rgb(173,216,320);
-    color: #fff;
-  }
-  #awaitingFunds {
-    background: #f8d7da;
-    color: #fff;
-  }
-  button {
-    background-color: #4caf50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    margin-left: 5px;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  </style>
+};
+</script>
+
+<style scoped>
+
+.flexCenter{
+  display: flex;
+  padding: 2rem;
+  gap: 4rem;
+  /* color: #39cb39;
+  background: #3fa0dc;
+  background-color: #0fa20f; */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* height: ; */
+}
+
+</style>

@@ -34,7 +34,11 @@ onMounted
 
 </template>
 
-<style scoped>
+<style>
+
+.Vue-Toastification__toast--default.my-custom-toast-class {
+        background-color: red;
+    }
 
 footer{
   height: 1rem;
