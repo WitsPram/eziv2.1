@@ -1,12 +1,12 @@
 <template>
   <header class="p-8 pb-0">
     <nav class="bg-white border-gray-200 dark:bg-gray-900">
-      <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+      <article class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <router-link to="/" class="flex items-center space-x-3 rtl:space-x-reverse">
           <img  src="../assets/logo.png" height="70" width="70" alt="Logo" />
-          <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Ezezimalis</span>
+          <section class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Ezezimalis</section>
         </router-link>
-        <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+        <section class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
           <button type="button"
             class="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
             id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown"
@@ -14,13 +14,13 @@
             <img style="border-radius: 100%; background-color: white;" id="pfp" height="50" width="50" class="rounded-full h-0 bg-white" :src="pfp" alt="user photo">
           </button>
           <!-- Dropdown menu -->
-          <div
+          <section
             class="z-50 p-4 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
             id="user-dropdown">
-            <div class="px-4 py-3">
-              <span class="block text-sm text-gray-900 dark:text-white"> {{ userName }} </span>
-              <span class="block text-sm  text-gray-500 truncate dark:text-gray-400">{{ userType }}</span>
-            </div>
+            <section class="px-4 py-3">
+              <section class="block text-sm text-gray-900 dark:text-white"> {{ userName }} </section>
+              <section class="block text-sm  text-gray-500 truncate dark:text-gray-400">{{ userType }}</section>
+            </section>
             <ul class="py-2" aria-labelledby="user-menu-button">
               <li>
                 <router-link to="/"
@@ -80,11 +80,11 @@
                   out</button>
               </li>
             </ul>
-          </div>
+          </section>
 
-        </div>
+        </section>
 
-      </div>
+      </article>
     </nav>
 
   </header>

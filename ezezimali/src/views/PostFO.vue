@@ -1,6 +1,6 @@
 
 <template>
-    <div class="w-full flexCenter" id="form-container">
+    <main class="w-full flexCenter" id="form-container">
       <form @submit.prevent="submitForm">
         <h2  id="heading">Application for funding opportunity</h2>
   
@@ -16,7 +16,7 @@
 
 
         <label for="type" class="input-labels">Event type</label>
-        <div class="radio-group">
+        <section class="radio-group">
 
 
           <label class="radio-label flexRow">
@@ -28,20 +28,20 @@
             <label class="radio-label flexRow">
             <input type="radio" name="type" value="Events" v-model="formData.type"> Events </label>
 
-</div>
+            </section>
   
         <label for="description" class="input-labels">Description</label>
         <textarea id="description" required rows="4" class="input textarea" v-model="formData.description" placeholder="This grant offers..."></textarea>
   
-        <div class="flexRow">
-          <div>
+        <article class="flexRow">
+          <section>
             <input id="terms" type="checkbox" value="" v-model="formData.agree" required />
-          </div>
+          </section>
           <label for="terms" class="input-labels">I agree with the <a href="#" class="text-blue-600 hover:underline">terms and conditions</a></label>
-        </div>
+        </article>
         <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
       </form>
-    </div>
+    </main>
   </template>
   
   <script>

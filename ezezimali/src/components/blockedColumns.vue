@@ -1,37 +1,37 @@
 <template>
-    <div>
+    <article>
         <!-- Blockable Users Section -->
         <section class="category-box">
             <article class="pending-title-box">
                 <h2 class="bold-title">{{ enabledColName }}</h2>
             </article>
-            <div v-if="data.length === 0" class="no-data-box">
+            <section v-if="data.length === 0" class="no-data-box">
                 No data
-            </div>
-            <div v-else>
-                <div v-for="(item, index) in data" :key="index" class="card">
+            </section>
+            <article v-else>
+                <section v-for="(item, index) in data" :key="index" class="card">
                     <h5><strong>{{ item.username }}</strong></h5>
                     <p>{{ item.user_type }}</p>
 
                     <button class="verdict2-button" @click="block(item.tenant_id, index)">Block</button>
-                </div>
-            </div>
+                </section>
+            </article>
         </section>
 
         <!-- Blocked Users Section -->
-        <div v-if="data.length === 0" class="category-box">
+        <article v-if="data.length === 0" class="category-box">
             <section class="rejected-title-box">
                 <h2 class="bold-title">{{ disabledColName }}</h2>
             </section>
-            <div>
-                <div v-for="(item, index) in rejectedData" :key="index" class="card">
+            <section>
+                <section v-for="(item, index) in rejectedData" :key="index" class="card">
                     <h5><strong>{{ item.username }}</strong></h5>
                     <p>{{ item.user_type }}</p>
                     <p class="bold-status-r">Blocked</p>
-                </div>
-            </div>
-        </div>
-    </div>
+                </section>
+            </section>
+        </article>
+    </article>
 </template>
 
 <script>

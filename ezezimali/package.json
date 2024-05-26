@@ -19,6 +19,7 @@
     "@cloudinary/vue": "^1.12.1",
     "@coreui/coreui": "^5.0.1",
     "@coreui/vue": "^5.0.0",
+    "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "bulma": "^0.7.5",
     "flowbite": "^2.3.0",

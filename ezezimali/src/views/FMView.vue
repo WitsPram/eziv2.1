@@ -1,28 +1,28 @@
 <template>
   <section>
-    <div class="moop">
+    <main class="moop">
       <!-- Pending Funding Opportunities -->
       <section class="category-box">
         <article class="pending-title-box">
           <h2 class="bold-title">Pending Funding Opportunities</h2>
         </article>
-        <div v-if="pendingData.length === 0" class="no-data-box">
+        <article v-if="pendingData.length === 0" class="no-data-box">
           No pending funding opportunities.
-        </div>
-        <div v-else>
-          <div v-for="(item, index) in pendingData" :key="index" class="card">
+        </article>
+        <section v-else>
+          <article v-for="(item, index) in pendingData" :key="index" class="card">
             <h5><strong>{{ item.username }}</strong></h5>
             <p>{{ item.applicant_motivation }}</p>
             <!-- <a class="download-button" :href="item.applicant_documents">Download Documents</a> -->
             <a class="download-button btn" :href="item.applicant_documents" target="_blank" @click.prevent="downloadDocument(item.applicant_documents)">Download Documents</a>
 
-            <div class="actionbtns">
+            <section class="actionbtns">
               <button class="verdict2-button btn" @click="verdict(item.id, index,'Rejected')">Deny</button>
               <button class="verdict-button btn" @click="verdict(item.id, index,'Accepted')">Accept</button>
 
-            </div>
-          </div>
-        </div>
+            </section>
+          </article>
+        </section>
       </section>
 
       <!-- Accepted Funding Opportunities -->
@@ -30,34 +30,34 @@
         <article class="accepted-title-box">
           <h2 class="bold-title">Accepted Funding Opportunities</h2>
         </article>
-        <div v-if="acceptedData.length === 0" class="no-data-box">
+        <article v-if="acceptedData.length === 0" class="no-data-box">
           No accepted funding opportunities.
-        </div>
-        <div v-else>
-          <div v-for="(item, index) in acceptedData" :key="index" class="card">
+        </article>
+        <section v-else>
+          <article v-for="(item, index) in acceptedData" :key="index" class="card">
             <h5><strong>{{ item.username }}</strong></h5>
             <!-- <a class="download-button" :href="item.applicant_documents">Download Documents</a> -->
             <p class="bold-status-a">Accepted</p>
-          </div>
-        </div>
+          </article>
+        </section>
       </section>
 
       <!-- Rejected Funding Opportunities -->
-      <div class="category-box">
+      <article class="category-box">
         <section class="rejected-title-box">
           <h2 class="bold-title">Rejected Funding Opportunities</h2>
         </section>
-        <div v-if="rejectedData.length === 0" class="no-data-box">
+        <section v-if="rejectedData.length === 0" class="no-data-box">
           No rejected funding opportunities.
-        </div>
-        <div v-else>
-          <div v-for="(item, index) in rejectedData" :key="index" class="card">
+        </section>
+        <section v-else>
+          <article v-for="(item, index) in rejectedData" :key="index" class="card">
             <h5><strong>{{ item.username }}</strong></h5>
             <p class="bold-status-r">Rejected</p>
-          </div>
-        </div>
-      </div>
-    </div>
+          </article>
+        </section>
+      </article>
+    </main>
   </section>
 </template>
 

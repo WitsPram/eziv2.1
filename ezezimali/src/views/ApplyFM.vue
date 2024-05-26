@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full flexCenter" id="form-container">
+  <main class="w-full flexCenter" id="form-container">
     <form @submit.prevent="submitForm">
       <h2 id="heading">Application for Fund Manager</h2>
       <p>As a funding manager, you play a pivotal role in sourcing and securing financial resources for community
@@ -12,32 +12,32 @@
 
       <label for="documents" class="input-labels">Supporting Documents</label>
 
-      <div @click="upload" class="flexRow uploadbtn">
+      <article @click="upload" class="flexRow uploadbtn">
         <img  src="https://www.svgrepo.com/show/485545/upload-cicle.svg" alt="file upload icon" width="30" height="30">
-        <div>
-          <span class="block text-base font-semibold relative text-blue-900 group-hover:text-blue-500">
+        <section>
+          <section class="block text-base font-semibold relative text-blue-900 group-hover:text-blue-500">
               Upload a file
-          </span>
-          <span class="mt-0.5 block text-sm text-gray-500">Max 10 MB</span>
-        </div>
-      </div>
+          </section>
+          <section class="mt-0.5 block text-sm text-gray-500">Max 10 MB</section>
+          </section>
+        </article>
 
       <!-- <input type="file" accept=".pdf" @change="onFileChange" required id="documents" /> -->
       <label for="justification" class="input-labels">Your justification</label>
       <textarea id="justification" rows="4" class="input textarea" v-model="formData.justification" required
         placeholder="I would be a great fit because..."></textarea>
 
-      <div class="flexRow">
-        <div>
+      <article class="flexRow">
+        <section>
           <input id="terms" type="checkbox" value="" v-model="formData.agree" required />
-        </div>
+        </section>
         <label for="terms" class="input-labels">I hearby nominate myself for the role of <b class="text-blue-500">Fund
             Manager</b></label>
-      </div>
+        </article>
       <button type="submit"
         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Submit</button>
     </form>
-  </div>
+  </main>
 </template>
 
 <script>
