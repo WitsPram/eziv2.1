@@ -1,20 +1,20 @@
 <template>
-  <div class="dashboard">
+  <main class="dashboard">
 
     <!-- <router-link to="/apply-funding-manager">
           <button class="dashboard-button">Apply to be a Fund Manager</button>
         </router-link> -->
-    <div class="fundingOpps">
+    <section class="fundingOpps">
 
 
 
-      <div class="opp-card" v-for="opp in data" :key="opp.id">
+      <article class="opp-card" v-for="opp in data" :key="opp.id">
 
         <opp-card-edit :opp="opp" :userType="userType" :editing="true"></opp-card-edit>
-      </div>
+      </article>
 
-    </div>
-  </div>
+    </section>
+  </main>
 </template>
 
 <script>

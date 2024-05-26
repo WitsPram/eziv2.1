@@ -1,44 +1,44 @@
 <template>
-    <div class="admin-panel">
+    <article class="admin-panel">
       <section>
-        <div class="moop">
+        <section class="moop">
           <!-- Pending Funding Opportunities -->
           <section class="category-box">
             <article class="pending-title-box">
               <h2 class="bold-title">Fund Manager Requests</h2>
             </article>
-            <div v-if="data.length === 0" class="no-data-box">
+            <section v-if="data.length === 0" class="no-data-box">
               No Fund Manager Requests
-            </div>
-            <div v-else>
-              <div v-for="(item, index) in data" :key="index" class="card">
+            </section>
+            <article v-else>
+              <section v-for="(item, index) in data" :key="index" class="card">
                 <h5><strong>{{ item.username }}</strong></h5>
                 <h6 style="margin-bottom: 0.5rem;">Applicant</h6>
                 <p>{{ item.justification }}</p>
                 <a class="download-button" :href="item.document" target="_blank">View Attachments</a>
-                <div class="flexRow">
+                <section class="flexRow">
                   <button class="verdict2-button" @click="verdict(item.fk_tenant_id,index,0)">Deny</button>
                   <button class="verdict-button" @click="verdict(item.fk_tenant_id, index,1)">Approve</button>
-                </div>
-              </div>
-            </div>
+                </section>
+              </section>
+            </article>
           </section>
     
           <!-- Rejected Funding Opportunities -->
-          <div class="category-box">
+          <article class="category-box">
             <section class="rejected-title-box">
               <h2 class="bold-title">Rejected Fund Manager Requests</h2>
             </section>
-            <div>
-              <div v-for="(item, index) in rejectedData" :key="index" class="card">
+            <section>
+              <section v-for="(item, index) in rejectedData" :key="index" class="card">
                 <h5><strong>{{ item.username }}</strong></h5>
                 <p class="bold-status-r">Denied</p>
-              </div>
-            </div>
-          </div>
-        </div>
+              </section>
+            </section>
+          </article>
+        </section>
       </section>
-    </div>
+    </article>
   </template>
   
   <script>

@@ -1,24 +1,24 @@
 <template>
 
 
-  <div class="dashboard">
+  <main class="dashboard">
 
     <!-- <router-link to="/apply-funding-manager">
         <button class="dashboard-button">Apply to be a Fund Manager</button>
       </router-link> -->
 
 
-    <div class="fundingOpps" v-if="fundingOpps.length != 0">
+    <section class="fundingOpps" v-if="fundingOpps.length != 0">
 
-      <div class="opp-card" v-for="opp in fundingOpps" :key="opp.id">
+      <article class="opp-card" v-for="opp in fundingOpps" :key="opp.id">
         <opp-card-edit :opp="opp" :editing="false"></opp-card-edit>
-      </div>
+      </article>
 
-    </div>
-    <div v-else>{{ message }}</div>
+    </section>
+    <section v-else>{{ message }}</section>
 
 
-  </div>
+  </main>
 </template>
 
 <script>

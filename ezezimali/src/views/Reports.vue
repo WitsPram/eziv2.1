@@ -1,11 +1,11 @@
 <template>
-  <div class="flexCenter">
+  <main class="flexCenter">
     <CanvasJSChart :options="options" :style="styleOptions" @chart-ref="chart1Instance" />
     <CanvasJSChart :options="options2" :style="styleOptions" @chart-ref="chart2Instance" />
     <CanvasJSChart :options="options3" :style="styleOptions" @chart-ref="chart3Instance" />
     <CanvasJSChart :options="options4" :style="styleOptions" @chart-ref="chart4Instance" />
 
-  </div>
+  </main>
 
 </template>
 

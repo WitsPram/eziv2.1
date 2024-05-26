@@ -1,15 +1,13 @@
 <template>
   <div class="admin-panel">
     <section>
-      <div class="moop">
+      <article class="moop">
 
         <columns :disabledColName="'Blocked Users'" :enabledColName="'Blockable Users'" :data="enabledUsers"
           :rejectedData="disabledUsers"></columns>
 
 
-
-
-      </div>
+      </article>
     </section>
 
   </div>

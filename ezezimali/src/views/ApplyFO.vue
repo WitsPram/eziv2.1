@@ -1,6 +1,6 @@
 <template>
 
-  <div class="w-full flexCenter" id="form-container">
+  <main class="w-full flexCenter" id="form-container">
     <form @submit.prevent="submitForm">
       <h2 id="heading">Application for Funding</h2>
       <p>Please provide a good justification for why you should receive funding. This will be seen by the fund manager.
@@ -14,31 +14,31 @@
       <!-- <input type="file" accept=".pdf" @change="onFileChange" required id="documents" />
        -->
 
-       <div @click="openUploadWidget" class="flexRow uploadbtn">
+       <article @click="openUploadWidget" class="flexRow uploadbtn">
                     <img src="https://www.svgrepo.com/show/485545/upload-cicle.svg" alt="file upload icon" width="30"
                         height="30">
-                    <div>
-                        <span class="block text-base font-semibold relative text-blue-900 group-hover:text-blue-500">
+                    <section>
+                        <section class="block text-base font-semibold relative text-blue-900 group-hover:text-blue-500">
                             Upload a file
-                        </span>
-                        <span class="mt-0.5 block text-sm text-gray-500">Max 10 MB</span>
-                    </div>
-                </div>
+                        </section>
+                        <section class="mt-0.5 block text-sm text-gray-500">Max 10 MB</section>
+                      </section>
+                    </article>
 
       <label for="applicant_motivation" class="input-labels">Your justification</label>
       <textarea id="applicant_motivation" rows="4" class="input textarea" v-model="formData.applicant_motivation"
         required placeholder="I would be a great fit because..."></textarea>
-      <div class="flexRow">
-        <div>
+      <section class="flexRow">
+        <article>
           <input id="terms" type="checkbox" value="" v-model="formData.agree" required />
-        </div>
+        </article>
         <label for="terms" class="input-labels">I hearby nominate myself to receive <b
             class="text-blue-500">Funding</b></label>
-      </div>
+        </section>
       <button type="submit"
         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Submit</button>
     </form>
-  </div>
+  </main>
 </template>
 
 <script>

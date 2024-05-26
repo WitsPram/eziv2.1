@@ -1,5 +1,5 @@
 <template>
-    <div class="opp-card block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+    <section class="opp-card block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
         <img v-if="!editMode" :src="getImageSrc(opp.type)" width="50" height="50" :alt="editedType">
         <img v-else :src="getImageSrcEdit()" width="50" height="50" :alt="editedType">
       <h5 class="opp-title">{{ editMode ? editedTitle : opp.title }}</h5>
@@ -9,55 +9,55 @@
   
       <br>
     
-      <div v-if="editing">
-      <div v-if="!editMode" class="flexRow">
+      <article v-if="editing">
+      <section v-if="!editMode" class="flexRow">
         <button class="download-button" @click="editMode = true; initializeEditData()">Edit</button>
-      </div>
+      </section>
     
-      <div v-else>
+      <section v-else>
   <form @submit.prevent="submitChanges(opp.id, opp.amount)">
-    <div class="form-group">
+    <section class="form-group">
       <label for="editedTitle" class="form-label">Title</label>
       <input type="text" v-model="editedTitle" id="editedTitle" class="edit-input" placeholder="Enter edited title">
-    </div>
-    <div class="form-group">
+    </section>
+    <section class="form-group">
       <label for="editedSummary" class="form-label">Description</label>
       <textarea v-model="editedDescription" id="editedDescription" class="edit-textarea" placeholder="Enter edited description"></textarea>
-    </div>
-    <div class="form-group">
+    </section>
+    <section class="form-group">
       <label for="editedAmount" class="form-label">Amount</label>
       <input type="number" v-model="editedAmount" id="editedAmount" class="edit-input" placeholder="Enter edited amount">
-    </div>
+    </section
     <!-- Add more input fields as needed -->
-    <div class="form-group">
+    <section class="form-group">
       <label class="form-label">Type</label>
-      <div class="radio">
+      <section class="radio">
         <input type="radio" v-model="editedType" value="Educational" name="type">
         <label>Educational</label>
-      </div>
-      <div class="radio">
+      </section>
+      <section class="radio">
         <input type="radio" v-model="editedType" value="Business" name="type">
         <label>Business</label>
-      </div>
-      <div class="radio">
+      </section>
+      <section class="radio">
         <input type="radio" v-model="editedType" value="Events" name="type">
         <label>Events</label>
-      </div>
-    </div>
-    <div class="flexRow">
+      </section>
+    </section>
+    <section class="flexRow">
         <button type="button" class="verdict-button" @click="cancelEdit">Cancel</button>
         <button type="submit" class="download-button">Submit Changes</button>
-    </div>
+    </section>
   </form>
-</div>
-</div>
-<div v-else>
+</section>
+</article>
+<section v-else>
 
               <router-link v-if="applicant" :to="'/apply-funding-opportunity/' + opp.id" class="download-button">Apply for Funding
               </router-link>
-</div>
+</section>
 
-    </div>
+</section>
   </template>
     
   <script>

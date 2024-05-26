@@ -1,32 +1,32 @@
 <template>
-    <div class="container">
+    <main class="container">
         <h2 class="text-2xl font-semibold mb-6 text-gray-800">Update Profile</h2>
         <form @submit.prevent="updateProfile" class="form-container">
-            <div class="mb-4">
+            <section class="mb-4">
                 <label for="username" class="block text-gray-700 font-bold mb-2">Username</label>
                 <input type="text" id="username" v-model="formData.username"
                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required />
-            </div>
-            <div class="mb-4">
+            </section>
+            <section class="mb-4">
                 <label for="profilePic" class="block text-gray-700 font-bold mb-2">Profile Picture</label>
-                <div @click="openUploadWidget" class="flexRow uploadbtn">
+                <section @click="openUploadWidget" class="flexRow uploadbtn">
                     <img src="https://www.svgrepo.com/show/485545/upload-cicle.svg" alt="file upload icon" width="30"
                         height="30">
-                    <div>
-                        <span class="block text-base font-semibold relative text-blue-900 group-hover:text-blue-500">
+                    <article>
+                        <section class="block text-base font-semibold relative text-blue-900 group-hover:text-blue-500">
                             Upload a file
-                        </span>
-                        <span class="mt-0.5 block text-sm text-gray-500">Max 10 MB</span>
-                    </div>
-                </div>
+                        </section>
+                        <section class="mt-0.5 block text-sm text-gray-500">Max 10 MB</section>
+                    </article>
+                </section>
 
-            </div>
+            </section>
             <button type="submit" class="submit-button">
                 Update Profile
             </button>
         </form>
-    </div>
+    </main>
 </template>
 
 <script>

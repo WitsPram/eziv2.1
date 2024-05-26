@@ -1,11 +1,11 @@
 <template>
 
-  <div class="content">
-  <div class="notifications-container">
+  <main class="content">
+  <section class="notifications-container">
     <ul>
       <li v-for="notification in notifications" :key="notification.id" class="notification-item">
-        <div class="notification-content">
-          <div class="icon-container">
+        <article class="notification-content">
+          <section class="icon-container">
             <svg xmlns="http://www.w3.org/2000/svg"
               class="icon"
               fill="none"
@@ -14,17 +14,17 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-          </div>
-          <div class="text-container">
+          </section>
+          <section class="text-container">
             <h2>{{ notification.title }}</h2>
             <p>{{ notification.message }}</p>
-          </div>
-        </div>
+          </section>
+        </article>
         <button @click="removeNotification(notification.id)" class="remove-button">remove</button>
       </li>
     </ul>
-  </div>
-</div>
+  </section>
+</main>
 </template>
 
 <script>
